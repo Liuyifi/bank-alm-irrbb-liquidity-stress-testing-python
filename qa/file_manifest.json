@@ -1,0 +1,466 @@
+{
+  "file_count": 92,
+  "self_hash_note": "Manifest excludes its own size/hash to avoid a circular digest",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 271,
+      "sha256": "519fd477ecfcc9f077bd1006665c20a3eac942d6dd5f2c95feeafed168a98221"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 470,
+      "sha256": "56e339b539e599fbb42a496e733b257d6d0fe8a94fee17787fa51484ede8099f"
+    },
+    {
+      "path": "DATA_SOURCES.md",
+      "bytes": 1461,
+      "sha256": "e5f8f4290f38df57b00883ec84c8c385df74e7fc321eb61c4b696b110b5ac719"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1077,
+      "sha256": "f5eee63fb76b6585d82d7c3e7e7c5136331316c3256e72cb6bdf587f234d20de"
+    },
+    {
+      "path": "README.md",
+      "bytes": 12036,
+      "sha256": "898f49f1e877c132939a0b08176f72205efcb574573f4ff4b278c4e0c2560ed1"
+    },
+    {
+      "path": "RESUME_BULLETS.md",
+      "bytes": 1985,
+      "sha256": "17b758931c3ea51e9e1d4e84cbb6223fb31f53376b33040186f668edd3f3fd72"
+    },
+    {
+      "path": "STATUS.md",
+      "bytes": 5081,
+      "sha256": "56c5ca68cf2f1ac8e8db6da2e4caeb9a8e56ce3b2e8b862e095811128dad8acf"
+    },
+    {
+      "path": "config/public_source_lock.json",
+      "bytes": 6082,
+      "sha256": "7ad60f216a06b61c65734efaa8a3d7525341fb1e3a6348748d585c662780f850"
+    },
+    {
+      "path": "data/processed/artifact_payload.json",
+      "bytes": 1158706,
+      "sha256": "127f68ba4f9d1a44348aa793bed1d548db3f48cd7dd31f83e065345c587f00bf"
+    },
+    {
+      "path": "data/processed/calibrated_product_totals.json",
+      "bytes": 468,
+      "sha256": "128d92ed1d1cc3c4449c8933b737e38e8a168a0bdb7bc5aff0c8a923b9fa8503"
+    },
+    {
+      "path": "data/processed/cashflows.parquet",
+      "bytes": 7037107,
+      "sha256": "065c2d06ea18c36701042ec9390b9150dcb049b4378ad2b058f5d9caa4c47454"
+    },
+    {
+      "path": "data/processed/curve_nodes.json",
+      "bytes": 438,
+      "sha256": "b196e1d35c240d4357ced802048ef563c32139369c8391aa224233538a2fb231"
+    },
+    {
+      "path": "data/processed/field_dictionary.csv",
+      "bytes": 2773,
+      "sha256": "d21b1c9a5f807a8f2418e97d5290a7ce5dcd33e15250ba77c7b58df24e897a86"
+    },
+    {
+      "path": "data/processed/h8_nodes.json",
+      "bytes": 698,
+      "sha256": "f7661da3bf1c6da5c6b016e82ccb6da5bff38609c0978eb652e05949cee5514b"
+    },
+    {
+      "path": "data/processed/liquidity_assumptions.csv",
+      "bytes": 272,
+      "sha256": "253634da9379beaf51d8c66eaa118532a1b8938c38fc34aaddc351db78576473"
+    },
+    {
+      "path": "data/processed/positions.csv",
+      "bytes": 209652,
+      "sha256": "e194eaa78f4f646fb26525654a9ccf7c30d1c76890de346f28489a679407a456"
+    },
+    {
+      "path": "data/processed/public_data_lineage.json",
+      "bytes": 5253,
+      "sha256": "b9f45fad7b9bce112262a6dc71dd976a422b8f811312b0d65e1552ee47605cf3"
+    },
+    {
+      "path": "data/processed/scenario_discount_inputs.csv",
+      "bytes": 94830,
+      "sha256": "7e7952e5d8e2e8f4c6dcf8b4e29adcbf9148ceaaa66aaa53de762a5f9b551e28"
+    },
+    {
+      "path": "data/processed/treasury_risk.duckdb",
+      "bytes": 39333888,
+      "sha256": "ac65bc191a90d65bcbd704b157db454fff8c1971c4ecd7382d50a6e9dcbf4007"
+    },
+    {
+      "path": "data/raw/curve_lineage.json",
+      "bytes": 1466,
+      "sha256": "cdff32c25e6fdf2e48b6b3cdcaea4d0263fc44790d6ecd119188542e63db2cd0"
+    },
+    {
+      "path": "data/raw/federal_reserve_h8_2026-10-16.csv",
+      "bytes": 1742,
+      "sha256": "cb1f6d5d9dff0b8d469d254db2e502dd121f55b2782ba8ebf5ecefe73044d135"
+    },
+    {
+      "path": "data/raw/federal_reserve_h8_current_source.html",
+      "bytes": 664352,
+      "sha256": "59ecf8e72e3c2bb3414edf8a36fab7116adbb17e6999bd5d32ca70976d700949"
+    },
+    {
+      "path": "data/raw/federal_reserve_h8_source.zip",
+      "bytes": 8438469,
+      "sha256": "2ce2d425cdc21fe7fe3623aec6fe0dc273438e6887cdea813a69e188344c222b"
+    },
+    {
+      "path": "data/raw/treasury_annual_source.xml",
+      "bytes": 314308,
+      "sha256": "8ca59afe0ed35054787ee256d5f384c3d3252f98eb5898caf0b105f665897bfe"
+    },
+    {
+      "path": "data/raw/treasury_curve.csv",
+      "bytes": 576,
+      "sha256": "0178bc9acf0ba819f571f29f5ce5a7b9f52b5c4e0a18dc4341b38fea4ff211bd"
+    },
+    {
+      "path": "data/raw/treasury_selected_entry.xml",
+      "bytes": 1921,
+      "sha256": "4a16963604c4bf96bb0e14e1f3944ac9063e8e7370796ca77ebd8e640a36c5c8"
+    },
+    {
+      "path": "data/raw/treasury_yield_curve_2026-10-22.csv",
+      "bytes": 576,
+      "sha256": "0178bc9acf0ba819f571f29f5ce5a7b9f52b5c4e0a18dc4341b38fea4ff211bd"
+    },
+    {
+      "path": "docs/methodology.md",
+      "bytes": 9731,
+      "sha256": "63cdf05e5eb8a44a8e5904c0601bfb006ad692bd283ced566ae248b388eb05c3"
+    },
+    {
+      "path": "outputs/Bank_Treasury_Risk_Management_Pack.xlsx",
+      "bytes": 216603,
+      "sha256": "37eb6c25100df9d97a5e1b827c09e7892dca6c03d8d893ed50d40ee27ef83ced"
+    },
+    {
+      "path": "outputs/figures/balance_calibration.png",
+      "bytes": 56216,
+      "sha256": "6e143fd73703280fedeb2f444050ed773c7de4e1c7472c772d3f4f1adac51a6f"
+    },
+    {
+      "path": "outputs/figures/eve_sensitivity.png",
+      "bytes": 35109,
+      "sha256": "55a6b761aecec025908e1f22ea5ecc1ef17a27f890c39a8c7fdfec9cbd3c9047"
+    },
+    {
+      "path": "outputs/figures/liquidity_survival.png",
+      "bytes": 96823,
+      "sha256": "b08a6ffbdbb2d35b364c99b81b3d5209719403a43b444d4f74b7649d2eeacece"
+    },
+    {
+      "path": "outputs/figures/nii_sensitivity.png",
+      "bytes": 36866,
+      "sha256": "e15c97e4ef8875b9db8eed50fcf61836fbc4fd4383964e238eb6ff14914af681"
+    },
+    {
+      "path": "outputs/figures/repricing_gap.png",
+      "bytes": 35778,
+      "sha256": "b5c18994638aac0fd822bddd6dd9c06ee58ffed282eb388899efc731c2ef7d08"
+    },
+    {
+      "path": "outputs/figures/treasury_curve.png",
+      "bytes": 53503,
+      "sha256": "283729df43028cfb3f20bb889407169982ccb9165add56ef9262c4249cdff552"
+    },
+    {
+      "path": "outputs/metrics/environment.json",
+      "bytes": 87,
+      "sha256": "23c50ba8c997a586b88b7202260e7eb59d5929200aeba7c42437ad8316f96fda"
+    },
+    {
+      "path": "outputs/metrics/key_metrics.json",
+      "bytes": 2684,
+      "sha256": "0f05b464dd9d147a28f0e6155dd14f8ec5d724f4c3155eca09e7dd8c0893a128"
+    },
+    {
+      "path": "outputs/metrics/sql_reconciliation_classification.csv",
+      "bytes": 935,
+      "sha256": "a7dec5a4cf7a434493f57cbfe949f3a36b53bdd6add1c41f89422db7810e9287"
+    },
+    {
+      "path": "outputs/tables/balance_sheet.csv",
+      "bytes": 751,
+      "sha256": "54ddfe23236344095aa7f3a5c4ff15f4fd6d1c20821eb1de6c70ec9841237ecc"
+    },
+    {
+      "path": "outputs/tables/eve_scenarios.csv",
+      "bytes": 809,
+      "sha256": "c9200b363fbdef1d0746d61e065c1e8373f3d58a0a6ae14e61dbee29e4b80e7b"
+    },
+    {
+      "path": "outputs/tables/h8_balance_sheet_calibration.csv",
+      "bytes": 1274,
+      "sha256": "c12b8d26dbb9ba63d9636c2b2ec20f9cc3a5770d812295c88d0bc64aa45f6380"
+    },
+    {
+      "path": "outputs/tables/liquidity_daily.csv",
+      "bytes": 62997,
+      "sha256": "a999f79c04f5f68c1f901ecf8c2dd8b9b08fe7d3892ba04be5a3c73df6d1c950"
+    },
+    {
+      "path": "outputs/tables/liquidity_scenarios.csv",
+      "bytes": 884,
+      "sha256": "a09ce827da548649a4bfd00e21f10f53eeb7501fccbb38f766d91a3e5022a4e4"
+    },
+    {
+      "path": "outputs/tables/nii_scenarios.csv",
+      "bytes": 526,
+      "sha256": "6d1e7b98c05f1519c9c1ed84d183150cbefc7ad0161986113930942ccd61bad4"
+    },
+    {
+      "path": "outputs/tables/nmd_model_sensitivity.csv",
+      "bytes": 1459,
+      "sha256": "c971a6b5676a4669e08c055d428c8f076d75e5bc97a60de67f331d91bd839c33"
+    },
+    {
+      "path": "outputs/tables/product_contributions.csv",
+      "bytes": 6377,
+      "sha256": "3d3dced9e0de033388efc06a6103c9a53dee1e57ad4897428484310e858f1e66"
+    },
+    {
+      "path": "outputs/tables/python_sql_reconciliation.csv",
+      "bytes": 253,
+      "sha256": "8044a888986fbcfd19f5dffa89817ada6de27326255f13da15b37f20ba9a3f64"
+    },
+    {
+      "path": "outputs/tables/repricing_gap.csv",
+      "bytes": 1039,
+      "sha256": "e6076eb719d169d259a491edcf3eddef53f48566094c03860d91494a88f67df3"
+    },
+    {
+      "path": "outputs/tables/sql_balance_sheet.csv",
+      "bytes": 751,
+      "sha256": "54ddfe23236344095aa7f3a5c4ff15f4fd6d1c20821eb1de6c70ec9841237ecc"
+    },
+    {
+      "path": "outputs/tables/sql_liquidity_aggregation.csv",
+      "bytes": 52598,
+      "sha256": "f16b025bc94d412c97543d129bc70082ce5d317c4ca7b40acc6cd7d4bcf7d8bc"
+    },
+    {
+      "path": "outputs/tables/sql_repricing_gap.csv",
+      "bytes": 522,
+      "sha256": "42ccb56b63ffe32aa2a265d0a7bcab22712c99b4d0d931f058d29677fd836d6a"
+    },
+    {
+      "path": "outputs/tables/sql_scenario_reconciliation.csv",
+      "bytes": 659,
+      "sha256": "7daef884847995ff0cd0922b2859bd204d6ec2dcb696deb74d9d026ff78eb5d4"
+    },
+    {
+      "path": "qa/QA_REPORT.md",
+      "bytes": 6881,
+      "sha256": "69edb1726f7bed34d90a4c64c752e408d024bb65105a6d8cba651ddeaff37449"
+    },
+    {
+      "path": "qa/RELEASE_QA.md",
+      "bytes": 2362,
+      "sha256": "cbde64804859afe819728c548c2f87c2ab9c6bf88a185113baf3f41df8dec8b4"
+    },
+    {
+      "path": "qa/checks.json",
+      "bytes": 6005,
+      "sha256": "2070cf7b0c9afa2432ea75d68823f220082b5025e6834a9e686b8ef147ddf938"
+    },
+    {
+      "path": "qa/core_checks.json",
+      "bytes": 3287,
+      "sha256": "0d656ae03c3a37efa017344bd9d158534f35d05ea9ab25e8a05406e9fd6754cf"
+    },
+    {
+      "path": "qa/public_source_checks.json",
+      "bytes": 1281,
+      "sha256": "e0f2020aa15c67e0889bd10d606e16833af4b22d490c0080663eaed8cb763046"
+    },
+    {
+      "path": "qa/visual_review.json",
+      "bytes": 1363,
+      "sha256": "98db3a440a4c58189541260e1b0b2f1fea9bcca10ca25b75a8f913e9ffffc8fa"
+    },
+    {
+      "path": "qa/workbook_build.json",
+      "bytes": 374,
+      "sha256": "8c57bbe51eb16f550a66023ce9ccbfdce6c1fbcef3152e2cd6235003734c806d"
+    },
+    {
+      "path": "report/Banking_Book_Interest_Rate_and_Liquidity_Stress_Testing_Report.docx",
+      "bytes": 234678,
+      "sha256": "4552e5f4facccb0698c5ab215a39c68f25b884102d07f5d8292a993ab6dbc5a6"
+    },
+    {
+      "path": "report/artifact.md",
+      "bytes": 1331,
+      "sha256": "71bb5db546bd168055866d864c08e9f8dd8d6168ac9a4e2ee6096996c17fa45d"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 141,
+      "sha256": "5258151a6a42bf05c53c7279f1fc20c0898077b44aad7be56eba7107476d0239"
+    },
+    {
+      "path": "sql/balance_sheet.sql",
+      "bytes": 237,
+      "sha256": "d578e00e05d9423e471d86952494ecf3937c1447b9e2e554f92ee44cd6d5335c"
+    },
+    {
+      "path": "sql/liquidity_aggregation.sql",
+      "bytes": 5052,
+      "sha256": "0ff4de63745ad06db61d1bb1cc850c1483a47f7ecc69c1acc7122bcfc44464ae"
+    },
+    {
+      "path": "sql/repricing_gap.sql",
+      "bytes": 1305,
+      "sha256": "b18b067423169ec593d32bba910664fc48c8a88617528faf1f2c956ded7dd34a"
+    },
+    {
+      "path": "sql/scenario_reconciliation.sql",
+      "bytes": 796,
+      "sha256": "5d31497bc4991fa1f6e22ccf05ab83142db79a7240b01d4e230fc4411d767f88"
+    },
+    {
+      "path": "src/__init__.py",
+      "bytes": 56,
+      "sha256": "6881cf52bd29544b85028f3fa824935a2f403da3bddbbc24064916bbb3229af7"
+    },
+    {
+      "path": "src/artifact_validation.py",
+      "bytes": 7280,
+      "sha256": "65193c540ed59a6ecbd8df1d77b436a8c22fce5e34107baad479496688f55fe6"
+    },
+    {
+      "path": "src/build_report.py",
+      "bytes": 25815,
+      "sha256": "37c51085a21516fa9df849a9013a0e08a80430b1aee0f32db5c7d588ca6d58ad"
+    },
+    {
+      "path": "src/build_workbook.mjs",
+      "bytes": 18723,
+      "sha256": "b42425e4bc79abdf86e308f500e0f7dcc14d096bfac6fb8132ceca5293dfe5a3"
+    },
+    {
+      "path": "src/config.py",
+      "bytes": 2296,
+      "sha256": "03ebea22b18cf2a71d85301299e4368de02f73069648e540a5e4c36aff1d085a"
+    },
+    {
+      "path": "src/contact_sheets.py",
+      "bytes": 1144,
+      "sha256": "7206623db3e13ef2b84ed7349c57d8fdda50c0715248859198ad0896cb0343dc"
+    },
+    {
+      "path": "src/controls.py",
+      "bytes": 7624,
+      "sha256": "afb339e1a89f81c43dbcc1a4669dd13ea25d9835d3d51435431513cf78784f3c"
+    },
+    {
+      "path": "src/engine.py",
+      "bytes": 5461,
+      "sha256": "f07d98d9bc2cf24ccd8ad1dda17f008258c5140e858fbb89b130fb0f4eebc34e"
+    },
+    {
+      "path": "src/figures.py",
+      "bytes": 3464,
+      "sha256": "9614bfa9f44f271d7bc21cf85754929c78a1fd50aadc2e1b404c5bcefb8b7e86"
+    },
+    {
+      "path": "src/final_qa.py",
+      "bytes": 7263,
+      "sha256": "c9a14260b64a7df6a0a9c196d0c19f717b163622d00db805d316cb9a52be9775"
+    },
+    {
+      "path": "src/input_validation.py",
+      "bytes": 1558,
+      "sha256": "78c25802b51041310d0ffa9b94d48c8e672c93a4a76c50a53ff93bf3d8846ebe"
+    },
+    {
+      "path": "src/liquidity.py",
+      "bytes": 5843,
+      "sha256": "491f761cbd80e5cf8be4017c73435c77809b00034f7977e98ce4caa5d677afb0"
+    },
+    {
+      "path": "src/market.py",
+      "bytes": 6573,
+      "sha256": "59bd82da53f54445b6d2056eb113a70595a013599db26f1d0880981d29d6fa8a"
+    },
+    {
+      "path": "src/pipeline.py",
+      "bytes": 7743,
+      "sha256": "fd11e0c1c9a7ccc912f36b887756d2745cff33124439fdeef4ef6fc191fcaef2"
+    },
+    {
+      "path": "src/portfolio.py",
+      "bytes": 4707,
+      "sha256": "a863ada0d7f1c5f1564b4e188362554835366575b41c5e0ab91ab914cc662dc1"
+    },
+    {
+      "path": "src/prepare_artifacts.py",
+      "bytes": 5288,
+      "sha256": "e6c1609605597138d56707bb4be339ba6f8b69e1ad363009193b714469e80512"
+    },
+    {
+      "path": "src/public_data.py",
+      "bytes": 11851,
+      "sha256": "fbe627e4c0d0f482a22b818bccb97d757144a1d47508819c90b7b9668d4ef132"
+    },
+    {
+      "path": "src/release_fix_evidence.py",
+      "bytes": 14649,
+      "sha256": "a79584e3412c28a68a21b8ae460ae251ad272a491b0eac5ed9ca4e92099f6fd2"
+    },
+    {
+      "path": "src/source_validation.py",
+      "bytes": 7033,
+      "sha256": "81cf44780b95d7018d3c081e4df3473de5eda5b2bd6c94dd08516749263a9769"
+    },
+    {
+      "path": "src/verify_workbook.mjs",
+      "bytes": 967,
+      "sha256": "8781c5a4279acae8dd88dac28057ab47d790c545fd0f8462777404275c260fc8"
+    },
+    {
+      "path": "src/workbook_recalc_qa.py",
+      "bytes": 4676,
+      "sha256": "c792cb199b42640e51afa2c3e70e9b300bb005d76d402bdca6dca37668acbbb5"
+    },
+    {
+      "path": "src/write_documentation.py",
+      "bytes": 16523,
+      "sha256": "46693b147ccf06094c3a666246e4369d0076d3a76e9eba63892681cca8f32af3"
+    },
+    {
+      "path": "tests/test_artifacts.py",
+      "bytes": 938,
+      "sha256": "4c6117ff17f7c2c0ab562ddfb7f74d0da41fd47f2e4a9871365341de913ef3ff"
+    },
+    {
+      "path": "tests/test_engine.py",
+      "bytes": 6248,
+      "sha256": "2e26a72f462eaf580b1cc343884b135cdbcb41f501a5dd141f59bd1220f75b91"
+    },
+    {
+      "path": "tests/test_release_regressions.py",
+      "bytes": 3613,
+      "sha256": "549e6f1f1d0a17bf3142a4042afa5a78cb564c8038b92a46316f2347a40d4c03"
+    },
+    {
+      "path": "tests/test_source_binding.py",
+      "bytes": 4946,
+      "sha256": "0b20607ad174627ed5d17d1b47b43959e3f3d6950e0ee83d52eb7dfd9cfbbee5"
+    }
+  ]
+}

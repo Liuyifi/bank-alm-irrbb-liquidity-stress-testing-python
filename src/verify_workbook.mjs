@@ -1,0 +1,13 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {FileBlob,SpreadsheetFile} from '@oai/artifact-tool';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const file=await FileBlob.load(path.join(root,'outputs/Bank_Treasury_Risk_Management_Pack.xlsx'));
+const w=await SpreadsheetFile.importXlsx(file);
+const summary=await w.inspect({kind:'table',range:"'Executive Summary'!C6:F16",include:'values,formulas',tableMaxRows:12,tableMaxCols:4,maxChars:6000});
+const expected=JSON.parse(await fs.readFile(path.join(root,'outputs/metrics/key_metrics.json'),'utf8'));
+const value=w.worksheets.getItem('Executive Summary').getRange('D11').values[0][0];
+if(Math.abs(value-expected.base_eve/1e6)>1e-9)throw new Error('Reimported EVE mismatch');
+await fs.writeFile(path.join(root,'qa/workbook_reimport.txt'),summary.ndjson);
+console.log('Saved XLSX reimported; summary EVE matches Python.');

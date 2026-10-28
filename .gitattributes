@@ -1,0 +1,11 @@
+# Preserve official downloaded snapshots byte-for-byte and avoid line-ending rewrites.
+data/raw/*.html binary
+data/raw/*.xml binary
+data/raw/*.zip binary
+
+# Office and analytical binary artifacts.
+*.docx binary
+*.xlsx binary
+*.parquet binary
+*.duckdb binary
+*.png binary

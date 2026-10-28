@@ -1,0 +1,9 @@
+group,side,observed_usd_billions,target_pct_total_assets,synthetic_usd,synthetic_pct_total_assets,difference_pct_points,tolerance_pct_points,synthetic_products
+cash_assets,asset,3120.742,0.12006884926866408,12006884.93,0.1200688493,3.1335919969954773e-09,0.01,Cash and liquid assets
+securities,asset,5758.121,0.22154057029377286,22154057.03,0.22154057030000002,6.227157678395656e-10,0.01,Government securities
+loans,asset,14174.066,0.5453394718557627,54533947.19,0.5453394719,4.423728050539921e-09,0.01,Fixed-rate mortgages; Floating-rate corporate loans; Consumer loans
+other_assets_net,asset,2938.3420000000024,0.1130511085818005,11305110.85,0.1130511085,-8.180049693162772e-09,0.01,Other non-rate-sensitive assets
+deposits,funding,19742.696,0.7595894790985789,75958947.91,0.7595894791,1.4210854715202004e-10,0.01,Non-maturity retail deposits; Term deposits
+borrowings,funding,2356.418,0.0906618995277299,9066189.95,0.09066189949999999,-2.7729915585972265e-09,0.01,Wholesale funding
+other_liabilities_net,funding,1443.636,0.0555431090691948,5554310.91,0.0555431091,3.080519866971443e-09,0.01,Other non-rate-sensitive liabilities
+residual_equity_proxy,funding,2448.521,0.09420551230449639,9420551.23,0.0942055123,-4.496389371944076e-10,0.01,H.8 residual-based equity proxy

@@ -1,0 +1,156 @@
+{
+  "stage": "engine",
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "assets_equal_liabilities_plus_equity",
+      "status": "PASS",
+      "detail": "Residual USD 0.0000000037"
+    },
+    {
+      "check": "position_id_unique",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "nonnegative_principal",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "reasonable_dates",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "rate_beta_bounds",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "cashflow_keys_unique",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "principal_not_overdrawn",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "base_principal_conservation",
+      "status": "PASS",
+      "detail": "Max contract USD 0.000000001513; t0 carrying-value items are valuation entries"
+    },
+    {
+      "check": "fixed_coupon_nii_unchanged",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "nii_shock_direction",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "fixed_asset_eve_shock_direction",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "discount_factors_positive_monotone",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "python_sql_reconciliation",
+      "status": "PASS",
+      "detail": "Max USD 0.000000815839; tolerance USD 0.01"
+    },
+    {
+      "check": "ir_scenario_completeness",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "liquidity_scenario_completeness",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "liquidity_buffer_reconciliation",
+      "status": "PASS",
+      "detail": "Max USD 0.000000011176"
+    },
+    {
+      "check": "inflow_cap_and_nonnegative_capacity",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "product_contribution_reconciliation",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "official_domains",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "dates_not_after_run",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "raw_files_nonempty",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "source_sha256",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "h8_required_fields",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "h8_nsa_population_units",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "h8_xml_html_crosscheck",
+      "status": "PASS",
+      "detail": "0.049999999999272404"
+    },
+    {
+      "check": "calibration_ratios",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "treasury_maturities_strictly_increasing",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "no_public_data_fallback",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "synthetic_h8_calibration_tolerance",
+      "status": "PASS",
+      "detail": "Maximum 0.000000008180 percentage points; tolerance 0.01 pp"
+    },
+    {
+      "check": "h8_balance_identity",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

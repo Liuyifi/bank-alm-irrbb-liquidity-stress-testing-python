@@ -1,0 +1,12 @@
+side,product,positions,principal,weighted_coupon
+asset,Cash and liquid assets,1,12006884.93,0.0
+asset,Consumer loans,400,7271192.960000001,0.08591780850879885
+asset,Fixed-rate mortgages,160,29084771.829999994,0.04827350954070672
+asset,Floating-rate corporate loans,50,18177982.400000002,0.06817750093612063
+asset,Government securities,12,22154057.03,0.035388437748404694
+asset,Other non-rate-sensitive assets,1,11305110.85,0.0
+equity,H.8 residual-based equity proxy,1,9420551.23,0.0
+liability,Non-maturity retail deposits,220,55703228.469999984,0.009823888929778559
+liability,Other non-rate-sensitive liabilities,1,5554310.91,0.0
+liability,Term deposits,80,20255719.44,0.03248511922885596
+liability,Wholesale funding,12,9066189.95,0.03751972905021651

@@ -1,0 +1,24 @@
+{
+  "source_type": "Official US Treasury par yield curve",
+  "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+  "display_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2026",
+  "curve_date": "2026-10-22",
+  "valuation_date": "2026-10-23",
+  "observation_date": "2026-10-22",
+  "publication_date": "2026-10-23",
+  "publication_date_definition": "Selected Atom entry updated timestamp date; not a separate claim about market-close publication time",
+  "feed_updated_timestamp": "2026-10-23T04:00:43Z",
+  "download_date": "2026-10-23T20:58:32.062295+08:00",
+  "latest_policy": "Latest complete curve dated <= valuation date in the annual official response",
+  "lag_calendar_days": 1,
+  "fields": {
+    "curve_date": "Treasury NEW_DATE, ISO date",
+    "tenor_years": "Months/12 or years",
+    "par_rate": "Official percent quote divided by 100, annual decimal",
+    "source_field": "Original Treasury XML field"
+  },
+  "source_response_sha256": "8ca59afe0ed35054787ee256d5f384c3d3252f98eb5898caf0b105f665897bfe",
+  "snapshot_sha256": "4a16963604c4bf96bb0e14e1f3944ac9063e8e7370796ca77ebd8e640a36c5c8",
+  "failure": null,
+  "important": "Par rates are bootstrapped using an approximate synthetic semiannual convention; they are not observed zero rates or SOFR."
+}

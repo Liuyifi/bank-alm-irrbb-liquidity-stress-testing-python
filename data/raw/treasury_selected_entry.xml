@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ns0:entry xmlns:ns0="http://www.w3.org/2005/Atom" xmlns:ns1="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:ns2="http://schemas.microsoft.com/ado/2007/08/dataservices">
+<ns0:id>https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml-item?data=daily_treasury_yield_curve&amp;id=342</ns0:id>
+<ns0:title type="text" />
+<ns0:updated>2026-10-23T04:00:43Z</ns0:updated>
+<ns0:author><ns0:name /></ns0:author>
+<ns0:link rel="edit" title="DailyTreasuryYieldCurveRateDatum" href="/resource-center/data-chart-center/interest-rates/pages/xml-item?data=daily_treasury_yield_curve&amp;id=342" />
+<ns0:category term="TreasuryDataWarehouseModel.DailyTreasuryYieldCurveRateDatum" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme" />
+<ns0:content type="application/xml">
+<ns1:properties>
+<ns2:Id ns1:type="Edm.Int32">342</ns2:Id>
+<ns2:NEW_DATE ns1:type="Edm.DateTime">2026-10-22T00:00:00</ns2:NEW_DATE>
+<ns2:BC_1MONTH ns1:type="Edm.Double">4.11</ns2:BC_1MONTH>
+<ns2:BC_1_5MONTH ns1:type="Edm.Double">4.10</ns2:BC_1_5MONTH>
+<ns2:BC_2MONTH ns1:type="Edm.Double">4.16</ns2:BC_2MONTH>
+<ns2:BC_3MONTH ns1:type="Edm.Double">4.22</ns2:BC_3MONTH>
+<ns2:BC_4MONTH ns1:type="Edm.Double">4.29</ns2:BC_4MONTH>
+<ns2:BC_6MONTH ns1:type="Edm.Double">4.29</ns2:BC_6MONTH>
+<ns2:BC_1YEAR ns1:type="Edm.Double">4.41</ns2:BC_1YEAR>
+<ns2:BC_2YEAR ns1:type="Edm.Double">4.65</ns2:BC_2YEAR>
+<ns2:BC_3YEAR ns1:type="Edm.Double">4.72</ns2:BC_3YEAR>
+<ns2:BC_5YEAR ns1:type="Edm.Double">4.78</ns2:BC_5YEAR>
+<ns2:BC_7YEAR ns1:type="Edm.Double">4.86</ns2:BC_7YEAR>
+<ns2:BC_10YEAR ns1:type="Edm.Double">4.96</ns2:BC_10YEAR>
+<ns2:BC_20YEAR ns1:type="Edm.Double">5.32</ns2:BC_20YEAR>
+<ns2:BC_30YEAR ns1:type="Edm.Double">5.29</ns2:BC_30YEAR>
+<ns2:BC_30YEARDISPLAY ns1:type="Edm.Double">5.29</ns2:BC_30YEARDISPLAY>
+</ns1:properties>
+</ns0:content>
+</ns0:entry>

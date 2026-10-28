@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "reviewed_release": "2026-10-23",
+  "trust_boundary": "Reviewed repository lock plus frozen official bytes; never refreshed automatically. A new date requires an explicit versioned lock review.",
+  "treasury": {
+    "source_name": "US Treasury Daily Treasury Par Yield Curve Rates",
+    "official_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+    "observation_date": "2026-10-22",
+    "release_date": "2026-10-23",
+    "download_date": "2026-10-23T20:58:32.062295+08:00",
+    "raw_snapshot": {
+      "path": "data/raw/treasury_annual_source.xml",
+      "sha256": "8ca59afe0ed35054787ee256d5f384c3d3252f98eb5898caf0b105f665897bfe"
+    },
+    "extracted_observation": {
+      "path": "data/raw/treasury_selected_entry.xml",
+      "sha256": "4a16963604c4bf96bb0e14e1f3944ac9063e8e7370796ca77ebd8e640a36c5c8"
+    },
+    "dated_observation": {
+      "path": "data/raw/treasury_yield_curve_2026-10-22.csv",
+      "sha256": "0178bc9acf0ba819f571f29f5ce5a7b9f52b5c4e0a18dc4341b38fea4ff211bd"
+    },
+    "processed_curve": {
+      "path": "data/raw/treasury_curve.csv",
+      "sha256": "0178bc9acf0ba819f571f29f5ce5a7b9f52b5c4e0a18dc4341b38fea4ff211bd"
+    },
+    "expected_maturities": [
+      0.0833333333333333,
+      0.1666666666666666,
+      0.25,
+      0.3333333333333333,
+      0.5,
+      1.0,
+      2.0,
+      3.0,
+      5.0,
+      7.0,
+      10.0,
+      20.0,
+      30.0
+    ],
+    "expected_rows": [
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_1MONTH",
+        "tenor_years": 0.0833333333333333,
+        "par_rate": 0.0411
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_2MONTH",
+        "tenor_years": 0.1666666666666666,
+        "par_rate": 0.0416
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_3MONTH",
+        "tenor_years": 0.25,
+        "par_rate": 0.0421999999999999
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_4MONTH",
+        "tenor_years": 0.3333333333333333,
+        "par_rate": 0.0429
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_6MONTH",
+        "tenor_years": 0.5,
+        "par_rate": 0.0429
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_1YEAR",
+        "tenor_years": 1.0,
+        "par_rate": 0.0441
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_2YEAR",
+        "tenor_years": 2.0,
+        "par_rate": 0.0465
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_3YEAR",
+        "tenor_years": 3.0,
+        "par_rate": 0.0472
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_5YEAR",
+        "tenor_years": 5.0,
+        "par_rate": 0.0478
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_7YEAR",
+        "tenor_years": 7.0,
+        "par_rate": 0.0486
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_10YEAR",
+        "tenor_years": 10.0,
+        "par_rate": 0.0496
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_20YEAR",
+        "tenor_years": 20.0,
+        "par_rate": 0.0532
+      },
+      {
+        "curve_date": "2026-10-22",
+        "source_field": "BC_30YEAR",
+        "tenor_years": 30.0,
+        "par_rate": 0.0529
+      }
+    ],
+    "units": "annual decimal par yield",
+    "transformation_method": "Select NEW_DATE=2026-10-22 in frozen official Atom snapshot, require all 13 fields, divide percent by 100. Selected row and derived CSV locked separately from annual feed. Synthetic semiannual par bootstrap, short simple-rate approximation, log-linear discount factors."
+  },
+  "h8": {
+    "source_name": "Federal Reserve H.8 all commercial banks, weekly Wednesday, NSA levels",
+    "official_url": "https://www.federalreserve.gov/releases/h8/data/FRB_h8_xml.zip",
+    "release_page_url": "https://www.federalreserve.gov/releases/h8/current/default.htm",
+    "release_date": "2026-10-16",
+    "observation_date": "2026-10-07",
+    "download_date": "2026-10-23T20:58:35.242778+08:00",
+    "raw_snapshot": {
+      "path": "data/raw/federal_reserve_h8_source.zip",
+      "sha256": "2ce2d425cdc21fe7fe3623aec6fe0dc273438e6887cdea813a69e188344c222b"
+    },
+    "release_page_snapshot": {
+      "path": "data/raw/federal_reserve_h8_current_source.html",
+      "sha256": "59ecf8e72e3c2bb3414edf8a36fab7116adbb17e6999bd5d32ca70976d700949"
+    },
+    "extracted_observation": {
+      "path": "data/raw/federal_reserve_h8_2026-10-16.csv",
+      "sha256": "cb1f6d5d9dff0b8d469d254db2e502dd121f55b2782ba8ebf5ecefe73044d135"
+    },
+    "processed_calibration": {
+      "path": "data/processed/calibrated_product_totals.json",
+      "sha256": "128d92ed1d1cc3c4449c8933b737e38e8a168a0bdb7bc5aff0c8a923b9fa8503"
+    },
+    "calibration_table": {
+      "path": "outputs/tables/h8_balance_sheet_calibration.csv",
+      "sha256": "c12b8d26dbb9ba63d9636c2b2ec20f9cc3a5770d812295c88d0bc64aa45f6380"
+    },
+    "expected_values": {
+      "securities": 5758.121,
+      "loans": 14174.066,
+      "cash_assets": 3120.742,
+      "total_assets": 25991.271,
+      "deposits": 19742.696,
+      "borrowings": 2356.418,
+      "net_due_foreign": 353.302,
+      "other_liabilities": 1090.334,
+      "total_liabilities": 23542.75,
+      "residual_equity_proxy": 2448.521
+    },
+    "source_units": "USD millions",
+    "units": "USD billions",
+    "transformation_method": "BG=CB; FREQ=19; SA=NSA; H8_UNITS=LEVEL; UNIT_MULT=1000000. Select 2026-10-07; divide by 1000. Scale shares to 100m USD, cent rounding and disclosed loan/deposit splits."
+  },
+  "lineage_metadata": [
+    {
+      "path": "data/raw/curve_lineage.json",
+      "sha256": "cdff32c25e6fdf2e48b6b3cdcaea4d0263fc44790d6ecd119188542e63db2cd0"
+    },
+    {
+      "path": "data/processed/public_data_lineage.json",
+      "sha256": "b9f45fad7b9bce112262a6dc71dd976a422b8f811312b0d65e1552ee47605cf3"
+    }
+  ]
+}

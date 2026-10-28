@@ -1,0 +1,130 @@
+{
+  "run_date": "2026-10-23",
+  "download_time": "2026-10-23T20:58:35.242778+08:00",
+  "treasury": {
+    "source_type": "Official US Treasury par yield curve",
+    "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+    "display_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve&field_tdr_date_value=2026",
+    "curve_date": "2026-10-22",
+    "valuation_date": "2026-10-23",
+    "observation_date": "2026-10-22",
+    "publication_date": "2026-10-23",
+    "publication_date_definition": "Selected Atom entry updated timestamp date; not a separate claim about market-close publication time",
+    "feed_updated_timestamp": "2026-10-23T04:00:43Z",
+    "download_date": "2026-10-23T20:58:32.062295+08:00",
+    "latest_policy": "Latest complete curve dated <= valuation date in the annual official response",
+    "lag_calendar_days": 1,
+    "fields": {
+      "curve_date": "Treasury NEW_DATE, ISO date",
+      "tenor_years": "Months/12 or years",
+      "par_rate": "Official percent quote divided by 100, annual decimal",
+      "source_field": "Original Treasury XML field"
+    },
+    "source_response_sha256": "8ca59afe0ed35054787ee256d5f384c3d3252f98eb5898caf0b105f665897bfe",
+    "snapshot_sha256": "4a16963604c4bf96bb0e14e1f3944ac9063e8e7370796ca77ebd8e640a36c5c8",
+    "failure": null,
+    "important": "Par rates are bootstrapped using an approximate synthetic semiannual convention; they are not observed zero rates or SOFR."
+  },
+  "h8": {
+    "source_type": "official downloadable XML archive",
+    "source_url": "https://www.federalreserve.gov/releases/h8/data/FRB_h8_xml.zip",
+    "release_page": "https://www.federalreserve.gov/releases/h8/current/default.htm",
+    "release_date": "2026-10-16",
+    "observation_date": "2026-10-07",
+    "units": "USD billions after converting XML USD millions / 1000",
+    "seasonal_adjustment": "Not seasonally adjusted",
+    "population": "All commercial banks in the United States",
+    "xml_html_max_difference_usd_billions": 0.049999999999272404,
+    "field_mapping": [
+      {
+        "field": "securities",
+        "series_name": "B1002NCBD",
+        "description": "Securities in bank credit, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "loans",
+        "series_name": "B1020NCBD",
+        "description": "Loans and leases in bank credit, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "cash_assets",
+        "series_name": "B1048NCBD",
+        "description": "Cash assets, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "total_assets",
+        "series_name": "B1151NCBD",
+        "description": "Total assets, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "deposits",
+        "series_name": "B1058NCBD",
+        "description": "Deposits, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "borrowings",
+        "series_name": "B3094NCBD",
+        "description": "Borrowings, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "net_due_foreign",
+        "series_name": "B1100NCBD",
+        "description": "Net due to related foreign offices, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "other_liabilities",
+        "series_name": "B3095NCBD",
+        "description": "Other liabilities, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "total_liabilities",
+        "series_name": "B1152NCBD",
+        "description": "Total liabilities, all commercial banks, not seasonally adjusted"
+      },
+      {
+        "field": "residual_equity_proxy",
+        "series_name": "B1091NCBD",
+        "description": "Residual (assets less liabilities), all commercial banks, not seasonally adjusted"
+      }
+    ],
+    "attempts": [
+      {
+        "url": "https://www.federalreserve.gov/releases/h8/data/FRB_h8_xml.zip",
+        "status": "success"
+      }
+    ]
+  },
+  "fallback_used": false,
+  "files": [
+    {
+      "path": "data/raw/treasury_annual_source.xml",
+      "bytes": 314308,
+      "sha256": "8ca59afe0ed35054787ee256d5f384c3d3252f98eb5898caf0b105f665897bfe"
+    },
+    {
+      "path": "data/raw/treasury_selected_entry.xml",
+      "bytes": 1921,
+      "sha256": "4a16963604c4bf96bb0e14e1f3944ac9063e8e7370796ca77ebd8e640a36c5c8"
+    },
+    {
+      "path": "data/raw/treasury_yield_curve_2026-10-22.csv",
+      "bytes": 576,
+      "sha256": "0178bc9acf0ba819f571f29f5ce5a7b9f52b5c4e0a18dc4341b38fea4ff211bd"
+    },
+    {
+      "path": "data/raw/federal_reserve_h8_current_source.html",
+      "bytes": 664352,
+      "sha256": "59ecf8e72e3c2bb3414edf8a36fab7116adbb17e6999bd5d32ca70976d700949"
+    },
+    {
+      "path": "data/raw/federal_reserve_h8_2026-10-16.csv",
+      "bytes": 1742,
+      "sha256": "cb1f6d5d9dff0b8d469d254db2e502dd121f55b2782ba8ebf5ecefe73044d135"
+    },
+    {
+      "path": "data/raw/federal_reserve_h8_source.zip",
+      "bytes": 8438469,
+      "sha256": "2ce2d425cdc21fe7fe3623aec6fe0dc273438e6887cdea813a69e188344c222b"
+    }
+  ]
+}

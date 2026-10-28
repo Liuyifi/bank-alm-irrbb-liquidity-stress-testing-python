@@ -1,0 +1,27 @@
+field,classification,definition
+position_id,Model assumption / synthetic field,Unique synthetic product/record key
+product,Model assumption / synthetic field,Internal stylized product classification
+asset_or_liability,Model assumption / synthetic field,"asset, liability or equity"
+principal,Synthetic allocation calibrated to public aggregate,"Outstanding USD at valuation, cent-exact calibrated group allocation"
+coupon_rate,Model assumption / synthetic field,Annual decimal current coupon; current corporate forward proxy + spread or internal fixed bounds
+fixed_or_floating,Model assumption / synthetic field,"fixed, floating or non_rate"
+origination_date,Model assumption / synthetic field,Simulated date before valuation; not observed contract history
+contractual_maturity,Model assumption / synthetic field,Legal maturity; NMD demand maturity is next day
+next_repricing_date,Model assumption / synthetic field,First scheduled reset; fixed positions use final maturity
+repricing_frequency,Model assumption / synthetic field,"1M, 3M or none"
+repricing_frequency_months,Model assumption / synthetic field,"Integer reset interval, zero if not applicable"
+next_reset_month,Model assumption / synthetic field,"Months from valuation to first reset, zero for immediate NMD repricing"
+amortization_type,Model assumption / synthetic field,"equal_principal, bullet, behavioral_equal_principal, cash, equity or carrying_value"
+reference_rate,Model assumption / synthetic field,Treasury-implied forward proxy for floaters; none otherwise
+spread,Model assumption / synthetic field,"Annual decimal fixed corporate spread, not a credit-spread stress"
+behavioral_maturity_months,Model assumption / synthetic field,"NMD modeled principal runoff horizon, zero if not NMD"
+behavioral_maturity,Model assumption / synthetic field,Model effective maturity date; contractual maturity for other dated products
+remaining_maturity_months,Model assumption / synthetic field,Remaining modeled calendar months; NMD behavioral horizon
+deposit_beta,Model assumption / synthetic field,"NMD coupon pass-through factor, annual rate change times beta"
+runoff_assumption,Model assumption / synthetic field,Baseline 90-day NMD runoff fraction before liquidity scenario multiplier
+liquidity_haircut,Model assumption / synthetic field,Base haircut on eligible security Base EVE market value
+undrawn_commitment,Model assumption / synthetic field,"USD off-balance-sheet corporate commitment, 40% of current principal"
+currency,Model assumption / synthetic field,USD only
+record_grain,Model assumption / synthetic field,Contract or explicit position group
+bucket_order,Derived model field,Derived first-reset bucket order 0 through 7
+bucket,Derived model field,Derived label for next repricing/maturity bucket

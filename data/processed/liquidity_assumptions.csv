@@ -1,0 +1,4 @@
+scenario,retail_multiplier,term_nonrenewal,wholesale_loss,commitment_draw,extra_haircut,monetization_day,collection_rate,frontload
+Idiosyncratic,2.0,0.5,0.75,0.25,0.03,2,0.95,0.055
+Market-wide,1.2,0.65,0.85,0.4,0.08,5,0.85,0.025
+Combined,4.0,1.0,1.0,0.65,0.12,7,0.8,0.045

@@ -1,0 +1,65 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "official_domains",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "dates_not_after_run",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "raw_files_nonempty",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "source_sha256",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "h8_required_fields",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "h8_nsa_population_units",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "h8_xml_html_crosscheck",
+      "status": "PASS",
+      "detail": "0.049999999999272404"
+    },
+    {
+      "check": "calibration_ratios",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "treasury_maturities_strictly_increasing",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "no_public_data_fallback",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "check": "synthetic_h8_calibration_tolerance",
+      "status": "PASS",
+      "detail": "Maximum 0.000000008180 percentage points; tolerance 0.01 pp"
+    },
+    {
+      "check": "h8_balance_identity",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+check_name,input_grain,python_source,sql_source,classification,difference,tolerance,status
+balance_sheet,position principal,portfolio.generate / position ledger,sql/balance_sheet.sql,INDEPENDENT_RECOMPUTATION,1.4901161193847656e-08,0.01,PASS
+repricing_rsa_rsl,position dates and principal,portfolio.repricing_gap,sql/repricing_gap.sql,INDEPENDENT_RECOMPUTATION,2.2351741790771484e-08,0.01,PASS
+scenario_nii,projected contractual cash flow,engine.cashflows / run_ir,sql/scenario_reconciliation.sql,PARTIAL_RECOMPUTATION,1.6763806343078613e-08,0.01,PASS
+scenario_eve,projected cash flow plus scenario discount inputs,engine.cashflows / market.Curve,sql/scenario_reconciliation.sql,PARTIAL_RECOMPUTATION,8.158385753631592e-07,0.01,PASS
+liquidity_daily,"position, scenario assumption, shared Base cash flow and discount inputs",liquidity.liquidity_stress,sql/liquidity_aggregation.sql,PARTIAL_RECOMPUTATION,2.421438694000244e-08,0.01,PASS

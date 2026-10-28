@@ -1,0 +1,11 @@
+field,series_name,observation_date,value_usd_billions,source_units,units,seasonal_adjustment,description
+securities,B1002NCBD,2026-10-07,5758.121,USD millions,USD billions,Not seasonally adjusted,"Securities in bank credit, all commercial banks, not seasonally adjusted"
+loans,B1020NCBD,2026-10-07,14174.066,USD millions,USD billions,Not seasonally adjusted,"Loans and leases in bank credit, all commercial banks, not seasonally adjusted"
+cash_assets,B1048NCBD,2026-10-07,3120.742,USD millions,USD billions,Not seasonally adjusted,"Cash assets, all commercial banks, not seasonally adjusted"
+total_assets,B1151NCBD,2026-10-07,25991.271,USD millions,USD billions,Not seasonally adjusted,"Total assets, all commercial banks, not seasonally adjusted"
+deposits,B1058NCBD,2026-10-07,19742.696,USD millions,USD billions,Not seasonally adjusted,"Deposits, all commercial banks, not seasonally adjusted"
+borrowings,B3094NCBD,2026-10-07,2356.418,USD millions,USD billions,Not seasonally adjusted,"Borrowings, all commercial banks, not seasonally adjusted"
+net_due_foreign,B1100NCBD,2026-10-07,353.302,USD millions,USD billions,Not seasonally adjusted,"Net due to related foreign offices, all commercial banks, not seasonally adjusted"
+other_liabilities,B3095NCBD,2026-10-07,1090.334,USD millions,USD billions,Not seasonally adjusted,"Other liabilities, all commercial banks, not seasonally adjusted"
+total_liabilities,B1152NCBD,2026-10-07,23542.75,USD millions,USD billions,Not seasonally adjusted,"Total liabilities, all commercial banks, not seasonally adjusted"
+residual_equity_proxy,B1091NCBD,2026-10-07,2448.521,USD millions,USD billions,Not seasonally adjusted,"Residual (assets less liabilities), all commercial banks, not seasonally adjusted"

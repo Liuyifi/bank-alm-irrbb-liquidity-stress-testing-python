@@ -1,0 +1,6 @@
+control,max_abs_difference,tolerance_usd
+balance_sheet,1.4901161193847656e-08,0.01
+repricing_rsa_rsl,2.2351741790771484e-08,0.01
+scenario_nii,1.6763806343078613e-08,0.01
+scenario_eve,8.158385753631592e-07,0.01
+liquidity_daily,2.421438694000244e-08,0.01
