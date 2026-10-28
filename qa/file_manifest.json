@@ -1,5 +1,5 @@
 {
-  "file_count": 94,
+  "file_count": 99,
   "self_hash_note": "Manifest excludes its own size/hash to avoid a circular digest",
   "files": [
     {
@@ -296,6 +296,31 @@
       "path": "qa/public_source_checks.json",
       "bytes": 1281,
       "sha256": "e0f2020aa15c67e0889bd10d606e16833af4b22d490c0080663eaed8cb763046"
+    },
+    {
+      "path": "qa/release_repair_20261028_p1/REPAIR_REPORT.md",
+      "bytes": 2567,
+      "sha256": "0b07ccbb06046c09a47e9bed244dbcf82a9e810fcebc098691b20220f7e7d4ea"
+    },
+    {
+      "path": "qa/release_repair_20261028_p1/claim_changes.md",
+      "bytes": 1408,
+      "sha256": "4192086c23aea68bcf5fbc343d38a05eed72c3393caa1f79ba2398e877a6b99c"
+    },
+    {
+      "path": "qa/release_repair_20261028_p1/files_changed.csv",
+      "bytes": 2416,
+      "sha256": "23f285a8121c91ddfa794411499e987a576337a10e9968e5b51f482d17e30d0a"
+    },
+    {
+      "path": "qa/release_repair_20261028_p1/fresh_clone_reproduction.md",
+      "bytes": 3239,
+      "sha256": "67b663b49855757e1666ab964d52c93d224e8f5cbf8b86bbbdf1ef5c74ac5c7b"
+    },
+    {
+      "path": "qa/release_repair_20261028_p1/source_boundary_test.md",
+      "bytes": 1888,
+      "sha256": "31ca065360d4222ff05c3408992cd5dc57bd712d8af3e28ff42021f1377a33fa"
     },
     {
       "path": "qa/visual_review.json",

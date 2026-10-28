@@ -1,0 +1,28 @@
+path,category,reason
+README.md,documentation,Document Python/Excel/Word validation sequence and current-state claims
+RESUME_BULLETS.md,documentation,Remove unavailable prior-baseline wording
+STATUS.md,documentation,Use current-state control wording
+pytest.ini,test infrastructure,Restrict public test discovery to tests and avoid archival audit-module collisions
+qa/QA_REPORT.md,QA evidence,Record current test and control results
+qa/RELEASE_QA.md,QA evidence,Replace historical retention claims with current reconciliation
+qa/checks.json,QA evidence,Record current final controls
+qa/current_metric_reconciliation.csv,QA evidence,Provide independently recomputed current metric reconciliation
+qa/file_manifest.json,QA evidence,Inventory current tracked public files
+qa/visual_review.json,QA evidence,Use current visual-review wording and artifact hashes
+src/artifact_validation.py,artifact validation,Auto-render missing or stale Word evidence before validation
+src/engine.py,source boundary,Enforce source-bound curve at cashflow boundary
+src/final_qa.py,QA generation,Remove unsupported historical wording
+src/market.py,source boundary,Add immutable curve state and verified provenance binding
+src/pipeline.py,source boundary,Use verified curves for NMD sensitivity
+src/release_fix_evidence.py,QA generation,Generate current-state metrics and claims only
+src/render_report.py,artifact validation,Add documented deterministic Word render command
+src/write_documentation.py,documentation generation,Generate repaired public wording and validation instructions
+tests/test_artifacts.py,tests,Verify actionable renderer dependency failure
+tests/test_engine.py,tests,Use scenario-matched verified curves
+tests/test_release_regressions.py,tests,Use verified curves in regression tests
+tests/test_source_binding.py,tests,Add direct-helper and copied-mutation attack tests
+qa/release_repair_20261028_p1/REPAIR_REPORT.md,repair evidence,Summarize scope disposition and verification
+qa/release_repair_20261028_p1/claim_changes.md,repair evidence,Document supported current-state claim changes
+qa/release_repair_20261028_p1/source_boundary_test.md,repair evidence,Document boundary contract and negative tests
+qa/release_repair_20261028_p1/fresh_clone_reproduction.md,repair evidence,Record exact clean-clone commands and results
+qa/release_repair_20261028_p1/files_changed.csv,repair evidence,Inventory narrow repair changes
