@@ -180,26 +180,6 @@ class Curve:
             token=_VERIFIED_CURVE_TOKEN, scenario=scenario))
         return curve
 
-    def require_source_binding(self):
-        """Revalidate provenance and in-memory integrity before sensitive use."""
-        from .source_validation import SourceValidationError, verified_curve
-
-        binding = self._binding
-        if (not isinstance(binding, _CurveBinding) or
-                binding.token is not _VERIFIED_CURVE_TOKEN):
-            raise SourceValidationError(
-                "Curve is not source-bound; use Curve.from_verified_source()")
-        if binding.scenario != self._scenario:
-            raise SourceValidationError("Curve provenance scenario is invalid")
-
-        canonical_nodes = verified_curve()
-        expected = type(self)(canonical_nodes, binding.scenario)
-        state = ("_node_t", "_par", "_times", "_dfs")
-        if any(getattr(self, name) != getattr(expected, name) for name in state):
-            raise SourceValidationError(
-                "Curve in-memory integrity does not match its verified source binding")
-        return canonical_nodes
-
     def df(self, t):
         return np.exp(np.interp(t, self._times, np.log(self._dfs)))
 
@@ -207,6 +187,46 @@ class Curve:
         if end <= start:
             raise ValueError("Forward end must exceed start")
         return float((self.df(start)/self.df(end)-1)/(end-start))
+
+
+def require_source_bound_curve(curve, scenario):
+    """Authorize a canonical Curve for sensitive production calculations.
+
+    This module-owned boundary deliberately avoids virtual dispatch.  It accepts
+    only the exact production type, revalidates the locked source, reconstructs
+    the expected curve, and compares every current normalized numeric field.
+    """
+    from .source_validation import SourceValidationError, verified_curve
+
+    if type(curve) is not Curve:
+        raise SourceValidationError(
+            "Cash-flow calculation requires the canonical concrete Curve type")
+
+    binding = object.__getattribute__(curve, "_binding")
+    if (type(binding) is not _CurveBinding or
+            object.__getattribute__(binding, "token") is not _VERIFIED_CURVE_TOKEN):
+        raise SourceValidationError(
+            "Curve is not source-bound; use Curve.from_verified_source()")
+
+    bound_scenario = object.__getattribute__(binding, "scenario")
+    curve_scenario = object.__getattribute__(curve, "_scenario")
+    if (type(bound_scenario) is not str or type(curve_scenario) is not str or
+            bound_scenario != curve_scenario):
+        raise SourceValidationError("Curve provenance scenario is invalid")
+    if type(scenario) is not str or scenario != curve_scenario:
+        raise SourceValidationError("Cash-flow scenario does not match Curve provenance")
+
+    canonical_nodes = verified_curve()
+    expected = Curve(canonical_nodes, bound_scenario)
+    for name in ("_node_t", "_par", "_times", "_dfs"):
+        current_values = object.__getattribute__(curve, name)
+        expected_values = object.__getattribute__(expected, name)
+        if (type(current_values) is not tuple or
+                not all(type(value) is float for value in current_values) or
+                current_values != expected_values):
+            raise SourceValidationError(
+                "Curve in-memory integrity does not match its verified source binding")
+    return canonical_nodes
 
 
 if __name__ == "__main__":

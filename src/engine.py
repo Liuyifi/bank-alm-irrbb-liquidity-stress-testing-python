@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 from .config import AS_OF, IR_SCENARIOS
-from .market import Curve
+from .market import Curve, require_source_bound_curve
 
 
 def cashflows(positions, curve, scenario="Base", nmd_maturity_scale=1., beta_override=None):
@@ -13,14 +13,9 @@ def cashflows(positions, curve, scenario="Base", nmd_maturity_scale=1., beta_ove
     NMD coupons follow initial coupon + beta*(one-month forward - initial index).
     NMD behavioral runoff replaces legal demand maturity only for IRRBB.
     """
-    from .source_validation import SourceValidationError
     from .input_validation import validate_positions
 
-    if not isinstance(curve, Curve):
-        raise SourceValidationError("Cash-flow calculation requires a verified Curve")
-    base_nodes = curve.require_source_binding()
-    if scenario != curve.scenario:
-        raise SourceValidationError("Cash-flow scenario does not match Curve provenance")
+    base_nodes = require_source_bound_curve(curve, scenario)
     validate_positions(positions)
 
     today = pd.Timestamp(AS_OF)

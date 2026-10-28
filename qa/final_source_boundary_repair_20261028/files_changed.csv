@@ -1,0 +1,11 @@
+path,change_type,reason
+src/market.py,modified,"Replace overridable object validation with exact-type module-owned current-state verification"
+src/engine.py,modified,"Invoke the trusted source-boundary function before sensitive calculation"
+tests/test_source_binding.py,modified,"Add malicious subclass, post-verification mutation, copied-binding forgery, and +10 bp regressions"
+qa/QA_REPORT.md,modified,"Record the current 64-test passing suite"
+qa/checks.json,modified,"Record current final-acceptance execution and 64-test result"
+qa/final_source_boundary_repair_20261028/REPAIR_REPORT.md,created,"Summarize the narrow repair and verification"
+qa/final_source_boundary_repair_20261028/subclass_bypass_fix.md,created,"Document the trusted boundary design and security reasoning"
+qa/final_source_boundary_repair_20261028/attack_matrix.md,created,"Record attacks A through H and their regression evidence"
+qa/final_source_boundary_repair_20261028/fresh_clone_validation.md,created,"Record documented clean-clone reproduction"
+qa/final_source_boundary_repair_20261028/files_changed.csv,created,"Enumerate the exact repair delta"

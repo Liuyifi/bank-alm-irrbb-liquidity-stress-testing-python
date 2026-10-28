@@ -118,11 +118,60 @@ def test_verified_canonical_curve_reaches_cashflow_boundary():
     assert not result.empty and result.signed_pv.notna().all()
 
 
+def test_post_verification_mutation_rejected_at_cashflow_boundary():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    canonical=Curve.from_verified_source()
+    object.__setattr__(canonical,'_par',tuple(rate+.001 for rate in canonical._par))
+    with pytest.raises(SourceValidationError,match='in-memory integrity'):
+        cashflows(positions,canonical)
+
+
 def test_copied_bound_curve_cannot_hide_in_memory_mutation():
     positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
     canonical=Curve.from_verified_source()
     tampered=copy.copy(canonical)
-    object.__setattr__(tampered,'_par',tuple(rate+.001 for rate in tampered._par))
+    object.__setattr__(tampered,'_dfs',tuple(value*.999 for value in tampered._dfs))
+    with pytest.raises(SourceValidationError,match='in-memory integrity'):
+        cashflows(positions,tampered)
+
+
+def test_forged_copied_provenance_cannot_authorize_tampered_content():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    canonical=Curve.from_verified_source()
+    nodes=pd.read_csv(ROOT/'data/raw/treasury_curve.csv')
+    nodes['par_rate']+=.001
+    tampered=Curve(nodes)
+    object.__setattr__(tampered,'_binding',copy.copy(canonical)._binding)
     with pytest.raises(SourceValidationError,match='in-memory integrity'):
         cashflows(positions,tampered)
     assert not cashflows(positions,canonical).empty
+
+
+class MaliciousCurve(Curve):
+    validation_calls=0
+
+    def require_source_binding(self):
+        type(self).validation_calls+=1
+        return verified_curve()
+
+    @property
+    def scenario(self):
+        return 'Base'
+
+
+def test_malicious_subclass_override_is_rejected_without_virtual_validation():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    MaliciousCurve.validation_calls=0
+    malicious=MaliciousCurve(pd.read_csv(ROOT/'data/raw/treasury_curve.csv'))
+    with pytest.raises(SourceValidationError,match='canonical concrete Curve type'):
+        cashflows(positions,malicious)
+    assert MaliciousCurve.validation_calls==0
+
+
+def test_malicious_subclass_with_ten_bp_content_is_rejected():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    nodes=pd.read_csv(ROOT/'data/raw/treasury_curve.csv')
+    nodes['par_rate']+=.001
+    malicious=MaliciousCurve(nodes)
+    with pytest.raises(SourceValidationError,match='canonical concrete Curve type'):
+        cashflows(positions,malicious)
