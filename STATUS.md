@@ -35,7 +35,7 @@
 - Initial build completed 2026-10-23; release repair and revalidation completed 2026-10-28, Asia/Shanghai.
 - Public data: Official Treasury 2026-10-22 and Fed H.8 release 2026-10-16 / observation 2026-10-07; no fallback. Original snapshots, field mappings and SHA256 retained.
 - Data: 938 synthetic contract/group records, USD 100m assets, calibrated to H.8 with 0.01 percentage-point tolerance.
-- Verification: 55 pytest cases pass, zero skips/failures/errors; all 52 automated acceptance controls and two visual reviews pass (54/54 check register). The original 31 tests and 48 automated controls remain covered.
+- Verification: the current pytest suite passes with zero skips/failures/errors; all 52 automated acceptance controls and two visual reviews pass (54/54 check register).
 - Python/SQL: five controls pass, maximum difference USD 0.0000008159; two are independent recomputations and three are partial recomputations.
 - Word: English report delivered; exactly nine pages rendered to PNG, all reviewed; targeted final views checked corrected title and appendix.
 - Excel: 12 sheets, 15 filter tables, four native charts; formula recalculation probe passed, saved XLSX reimported, key metrics and formula caches verified.

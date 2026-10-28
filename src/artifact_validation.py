@@ -62,7 +62,18 @@ def readme_paths():
     return [link for link in links if not link.startswith(('https://','http://','#')) and not (ROOT/link.split('#')[0]).exists()]
 
 
+def ensure_word_render():
+    """Create missing or stale Word visual-QA evidence before validation."""
+    images=sorted((ROOT/'qa/render').glob('page-*.png'))
+    current=PDF.is_file() and images and min([PDF.stat().st_mtime]+[p.stat().st_mtime for p in images])>=DOC.stat().st_mtime
+    if not current:
+        from .render_report import render
+        render()
+
+
 def acceptance(require_render=False):
+    if require_render:
+        ensure_word_render()
     m=json.loads((ROOT/'outputs/metrics/key_metrics.json').read_text())
     lineage=json.loads((ROOT/'data/processed/public_data_lineage.json').read_text())
     book=saved_workbook();text=doc_text()
@@ -108,7 +119,13 @@ def acceptance(require_render=False):
 
 
 if __name__ == '__main__':
-    result=acceptance(require_render=True)
+    try:
+        result=acceptance(require_render=True)
+    except Exception as exc:
+        from .render_report import WordRenderError
+        if isinstance(exc,WordRenderError):
+            raise SystemExit(f"WORD_RENDER_FAIL: {exc}") from exc
+        raise
     failed=[check for check in result if check['status']!='PASS']
     print(json.dumps({'status':'FAIL' if failed else 'PASS','checks':len(result),'failed':failed},indent=2))
     if failed:

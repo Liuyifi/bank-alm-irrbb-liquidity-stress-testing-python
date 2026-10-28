@@ -13,14 +13,20 @@ def cashflows(positions, curve, scenario="Base", nmd_maturity_scale=1., beta_ove
     NMD coupons follow initial coupon + beta*(one-month forward - initial index).
     NMD behavioral runoff replaces legal demand maturity only for IRRBB.
     """
+    from .source_validation import SourceValidationError
+    from .input_validation import validate_positions
+
+    if not isinstance(curve, Curve):
+        raise SourceValidationError("Cash-flow calculation requires a verified Curve")
+    base_nodes = curve.require_source_binding()
+    if scenario != curve.scenario:
+        raise SourceValidationError("Cash-flow scenario does not match Curve provenance")
+    validate_positions(positions)
+
     today = pd.Timestamp(AS_OF)
     dates = [today+pd.DateOffset(months=i) for i in range(362)]
     years = np.array([(d-today).days/365 for d in dates])
     # Initial index always from the unshocked curve, preventing shock cancellation.
-    from .source_validation import verified_curve
-    from .input_validation import validate_positions
-    validate_positions(positions)
-    base_nodes = verified_curve()
     initial_index = Curve(base_nodes).forward(0, years[1])
     rows = []
     for p in positions.itertuples():
@@ -72,7 +78,7 @@ def run_ir(positions, nodes):
     all_flows = []
     nii_rows, eve_rows, contributions = [], [], []
     for scenario in IR_SCENARIOS:
-        cf = cashflows(positions, Curve(nodes, scenario), scenario)
+        cf = cashflows(positions, Curve.from_verified_source(scenario), scenario)
         all_flows.append(cf)
         for product, part in cf.groupby("product", sort=False):
             sign = 1 if part.side.iloc[0] == "asset" else -1

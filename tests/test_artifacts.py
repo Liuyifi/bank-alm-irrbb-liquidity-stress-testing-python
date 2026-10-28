@@ -1,7 +1,9 @@
 import json
 from zipfile import ZipFile
+import pytest
 from src.config import ROOT
 from src.artifact_validation import DOC,XLS,acceptance,doc_text,saved_workbook,readme_paths
+from src.render_report import WordRenderError,render_tools
 
 
 def test_saved_office_packages_open():
@@ -29,3 +31,9 @@ def test_all_final_artifact_controls():
 
 def test_readme_targets_exist():
     assert not readme_paths()
+
+
+def test_word_render_dependency_failure_is_actionable(monkeypatch):
+    monkeypatch.setattr('src.render_report.shutil.which',lambda name: None)
+    with pytest.raises(WordRenderError,match='LibreOffice.*Poppler.*python -m src.render_report'):
+        render_tools()

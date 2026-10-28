@@ -38,7 +38,7 @@ def run():
     rows='\n'.join(f"| {c['check']} | {c['status']} | {c['detail']} |" for c in checks)
     report_path.write_text(f'''# QA report
 
-Final acceptance: **{status}**. {output['passed']} / {output['total']} controls pass, comprising {output['automated_check_count']} automated acceptance controls and two recorded visual reviews. The full pytest suite passes {stats['tests']} cases with {stats['failures']} failures, {stats['errors']} errors and {stats['skipped']} skips. It includes the original engine and saved-artifact coverage plus fail-closed source-binding and focused exceptional-input tests.
+Final acceptance: **{status}**. {output['passed']} / {output['total']} controls pass, comprising {output['automated_check_count']} automated acceptance controls and two recorded visual reviews. The full pytest suite passes {stats['tests']} cases with {stats['failures']} failures, {stats['errors']} errors and {stats['skipped']} skips. It includes engine and saved-artifact coverage plus fail-closed source-binding and focused exceptional-input tests.
 
 ## Official public sources
 

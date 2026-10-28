@@ -13,16 +13,16 @@
       9
     ],
     "docx_sha256": "4552e5f4facccb0698c5ab215a39c68f25b884102d07f5d8292a993ab6dbc5a6",
-    "method": "Reviewed all nine rendered pages through three contact sheets; inspected the source-hash appendix at full resolution.",
-    "corrections": "Verified the title-rule removal, residual-based equity naming, SQL classification language and exact source hashes.",
+    "method": "Reviewed all nine freshly rendered page PNGs at full-page resolution, including the source-hash appendix.",
+    "corrections": "Verified the title-rule removal, residual-based equity naming, SQL classification language, exact source hashes and current Word render workflow.",
     "findings": "Nine populated pages with clear tables and figures; no blank page, clipping, overlap, overflow, missing glyph or blurred chart observed."
   },
   "excel": {
     "status": "PASS",
     "sheets_reviewed": 12,
     "xlsx_sha256": "37eb6c25100df9d97a5e1b827c09e7892dca6c03d8d893ed50d40ee27ef83ced",
-    "method": "Reviewed every worksheet through three contact sheets; inspected Balance Sheet and Executive Summary at full resolution; reimported the saved XLSX and forced LibreOffice recalculation on a cache-stripped copy.",
-    "corrections": "Expanded balance-sheet labels and replaced all positive Tier 1 proxy labels with the H.8 residual-based stylized equity proxy name.",
+    "method": "Reviewed the freshly generated preview for each of the 12 worksheets and reimported the saved XLSX for formula verification.",
+    "corrections": "Verified readable balance-sheet labels and consistent H.8 residual-based stylized equity proxy terminology.",
     "findings": "All required tables, metrics and four charts are visible; no clipped labels, data/chart overlap, formula errors or broken rendering observed."
   }
 }

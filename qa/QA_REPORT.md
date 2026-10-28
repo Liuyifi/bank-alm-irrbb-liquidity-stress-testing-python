@@ -1,6 +1,6 @@
 # QA report
 
-Final acceptance: **PASS**. 54 / 54 controls pass, comprising 52 automated acceptance controls and two recorded visual reviews. The full pytest suite passes 55 cases with 0 failures, 0 errors and 0 skips. It includes the original engine and saved-artifact coverage plus fail-closed source-binding and focused exceptional-input tests.
+Final acceptance: **PASS**. 54 / 54 controls pass, comprising 52 automated acceptance controls and two recorded visual reviews. The full pytest suite passes 60 cases with 0 failures, 0 errors and 0 skips. It includes engine and saved-artifact coverage plus fail-closed source-binding and focused exceptional-input tests.
 
 ## Official public sources
 
@@ -83,4 +83,4 @@ These tests establish implementation consistency under documented synthetic assu
 | excel_no_legacy_equity_proxy_label | PASS |  |
 | word_visual_review_all_pages | PASS |  |
 | excel_visual_review_all_sheets | PASS |  |
-| pytest_full_suite | PASS | {'tests': 55, 'failures': 0, 'errors': 0, 'skipped': 0} |
+| pytest_full_suite | PASS | {'tests': 60, 'failures': 0, 'errors': 0, 'skipped': 0} |

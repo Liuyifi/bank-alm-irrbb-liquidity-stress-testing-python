@@ -20,7 +20,7 @@ def one():
 
 @pytest.fixture
 def curve():
-    return Curve(pd.read_csv(ROOT/'data/raw/treasury_curve.csv'))
+    return Curve.from_verified_source()
 
 
 def test_hand_calculated_asset_liability_and_maturity(one,curve):
@@ -38,8 +38,8 @@ def test_zero_deposit_coupon_floor(one,curve):
     one['fixed_or_floating']='floating';one['repricing_frequency_months']=1
     one['amortization_type']='behavioral_equal_principal';one['behavioral_maturity_months']=2
     one['coupon_rate']=0.;one['deposit_beta']=1.
-    down=Curve(pd.read_csv(ROOT/'data/raw/treasury_curve.csv'),'Parallel down 200 bps')
-    f=cashflows(one,down)
+    down=Curve.from_verified_source('Parallel down 200 bps')
+    f=cashflows(one,down,'Parallel down 200 bps')
     assert f.interest_cf.eq(0).all()
     assert f.principal_cf.tolist()==[600,600]
 

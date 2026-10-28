@@ -2,6 +2,7 @@
 import hashlib
 import json
 import os
+import copy
 import shutil
 import subprocess
 import sys
@@ -11,6 +12,8 @@ import pandas as pd
 import pytest
 
 from src.config import ROOT
+from src.engine import cashflows
+from src.market import Curve
 from src.source_validation import SourceValidationError, validate_sources, verified_curve
 
 
@@ -92,3 +95,34 @@ def test_semantic_checks_survive_rehashed_bad_curve(isolated):
 def test_replaced_processed_calibration_rejected(isolated):
     p=isolated/'data/processed/calibrated_product_totals.json';d=json.loads(p.read_text());d['Cash and liquid assets']+=1;p.write_text(json.dumps(d))
     with pytest.raises(SourceValidationError,match='SHA256 data/processed/calibrated_product_totals.json'): validate_sources(isolated)
+
+
+def test_direct_unbound_curve_rejected_at_cashflow_boundary():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    curve=Curve(pd.read_csv(ROOT/'data/raw/treasury_curve.csv'))
+    with pytest.raises(SourceValidationError,match='not source-bound'):
+        cashflows(positions,curve)
+
+
+def test_in_memory_ten_bp_curve_rejected_at_cashflow_boundary():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    nodes=pd.read_csv(ROOT/'data/raw/treasury_curve.csv')
+    nodes['par_rate']+=.001
+    with pytest.raises(SourceValidationError,match='not source-bound'):
+        cashflows(positions,Curve(nodes))
+
+
+def test_verified_canonical_curve_reaches_cashflow_boundary():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    result=cashflows(positions,Curve.from_verified_source())
+    assert not result.empty and result.signed_pv.notna().all()
+
+
+def test_copied_bound_curve_cannot_hide_in_memory_mutation():
+    positions=pd.read_csv(ROOT/'data/processed/positions.csv').iloc[:1]
+    canonical=Curve.from_verified_source()
+    tampered=copy.copy(canonical)
+    object.__setattr__(tampered,'_par',tuple(rate+.001 for rate in tampered._par))
+    with pytest.raises(SourceValidationError,match='in-memory integrity'):
+        cashflows(positions,tampered)
+    assert not cashflows(positions,canonical).empty

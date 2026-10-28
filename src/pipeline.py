@@ -77,7 +77,7 @@ def run():
                             ("NMD beta 15%",1.,.15),("NMD beta 55%",1.,.55)]:
         values=[]
         for scenario in ["Base","Parallel up 200 bps","Parallel down 200 bps"]:
-            flows=cashflows(p,Curve(nodes,scenario),scenario,scale,beta)
+            flows=cashflows(p,Curve.from_verified_source(scenario),scenario,scale,beta)
             sign=np.where(flows.side.eq("asset"),1,-1)
             net_nii=(flows.loc[flows.month.between(1,12),"interest_cf"]*sign[flows.month.between(1,12)]).sum()
             values.append((scenario,net_nii,flows.signed_pv.sum()))

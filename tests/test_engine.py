@@ -84,8 +84,8 @@ def test_principal_conserved_by_contract(positions,base_cf):
 def test_float_reset_is_not_early(nodes,positions):
     p=positions.loc[positions["product"].eq("Floating-rate corporate loans")].iloc[[0]].copy()
     p["next_reset_month"]=3; p["repricing_frequency_months"]=3
-    base=cashflows(p,Curve(nodes),"Base")
-    up=cashflows(p,Curve(nodes,"Parallel up 200 bps"),"Parallel up 200 bps")
+    base=cashflows(p,Curve.from_verified_source(),"Base")
+    up=cashflows(p,Curve.from_verified_source("Parallel up 200 bps"),"Parallel up 200 bps")
     np.testing.assert_allclose(base.interest_cf.iloc[:3],up.interest_cf.iloc[:3])
     assert up.interest_cf.iloc[3]>base.interest_cf.iloc[3]
 
@@ -104,9 +104,9 @@ def test_equity_excluded_from_eve_cashflows(base_cf,positions):
 
 def test_deposit_beta_changes_interest_cost(nodes,positions):
     p=positions.loc[positions["product"].eq("Non-maturity retail deposits")].iloc[:2]
-    c=Curve(nodes,"Parallel up 200 bps")
-    low=cashflows(p,c,beta_override=.15)
-    high=cashflows(p,c,beta_override=.55)
+    c=Curve.from_verified_source("Parallel up 200 bps")
+    low=cashflows(p,c,"Parallel up 200 bps",beta_override=.15)
+    high=cashflows(p,c,"Parallel up 200 bps",beta_override=.55)
     assert high.loc[high.month.le(12),"interest_cf"].sum()>low.loc[low.month.le(12),"interest_cf"].sum()
 
 

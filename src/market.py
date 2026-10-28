@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import urllib.request
@@ -18,6 +19,17 @@ FIELDS = {"BC_1MONTH": 1/12, "BC_2MONTH": 2/12, "BC_3MONTH": .25,
           "BC_4MONTH": 1/3, "BC_6MONTH": .5, "BC_1YEAR": 1.,
           "BC_2YEAR": 2., "BC_3YEAR": 3., "BC_5YEAR": 5.,
           "BC_7YEAR": 7., "BC_10YEAR": 10., "BC_20YEAR": 20., "BC_30YEAR": 30.}
+
+
+_VERIFIED_CURVE_TOKEN = object()
+
+
+@dataclass(frozen=True)
+class _CurveBinding:
+    """Opaque proof that a Curve was created from the validated release source."""
+
+    token: object
+    scenario: str
 
 
 def snapshot(xml_path=None, allow_fallback=False):
@@ -90,28 +102,106 @@ def shock(tenor, scenario):
 
 
 class Curve:
-    """Piecewise log-linear discount factors from synthetic semiannual par bonds."""
+    """Immutable piecewise log-linear discount curve.
+
+    Direct construction is intentionally unbound and remains useful for generic
+    bootstrap analysis. Production cash-flow/EVE calculations must use
+    :meth:`from_verified_source`, whose source binding is rechecked at the
+    computational boundary.
+    """
+
+    __slots__ = ("_node_t", "_par", "_times", "_dfs", "_scenario", "_binding")
+
     def __init__(self, nodes, scenario="Base"):
-        self.node_t = nodes.tenor_years.to_numpy(float)
-        self.par = np.maximum(nodes.par_rate.to_numpy(float) + shock(self.node_t, scenario), CURVE_FLOOR)
-        short = self.node_t[self.node_t < .5]
+        node_t = nodes.tenor_years.to_numpy(float)
+        par = np.maximum(nodes.par_rate.to_numpy(float) + shock(node_t, scenario), CURVE_FLOOR)
+        short = node_t[node_t < .5]
         times = [0.] + short.tolist()
-        dfs = [1.] + (1/(1 + np.interp(short, self.node_t, self.par)*short)).tolist()
+        dfs = [1.] + (1/(1 + np.interp(short, node_t, par)*short)).tolist()
         semi_dfs = []
         for t in np.arange(.5, 30.01, .5):
-            c = np.interp(t, self.node_t, self.par)
+            c = np.interp(t, node_t, par)
             df = (1 - .5*c*sum(semi_dfs))/(1+.5*c)
             if df <= 0:
                 raise ValueError("Bootstrap produced a nonpositive discount factor")
             semi_dfs.append(df)
             times.append(float(t)); dfs.append(float(df))
-        self.times = np.array(times)
-        self.dfs = np.array(dfs)
-        if np.any(np.diff(self.dfs) > 1e-10):
+        if np.any(np.diff(dfs) > 1e-10):
             raise ValueError("Negative implied forward rate under configured positive-rate scenarios")
 
+        object.__setattr__(self, "_node_t", tuple(float(x) for x in node_t))
+        object.__setattr__(self, "_par", tuple(float(x) for x in par))
+        object.__setattr__(self, "_times", tuple(float(x) for x in times))
+        object.__setattr__(self, "_dfs", tuple(float(x) for x in dfs))
+        object.__setattr__(self, "_scenario", scenario)
+        object.__setattr__(self, "_binding", None)
+
+    def __setattr__(self, name, value):
+        raise AttributeError("Curve is immutable; construct a new verified curve")
+
+    def __copy__(self):
+        clone = object.__new__(type(self))
+        for name in self.__slots__:
+            object.__setattr__(clone, name, getattr(self, name))
+        return clone
+
+    def __deepcopy__(self, memo):
+        clone = self.__copy__()
+        memo[id(self)] = clone
+        return clone
+
+    @property
+    def node_t(self):
+        return np.array(self._node_t)
+
+    @property
+    def par(self):
+        return np.array(self._par)
+
+    @property
+    def times(self):
+        return np.array(self._times)
+
+    @property
+    def dfs(self):
+        return np.array(self._dfs)
+
+    @property
+    def scenario(self):
+        return self._scenario
+
+    @classmethod
+    def from_verified_source(cls, scenario="Base"):
+        """Build an immutable Curve from the currently validated source lock."""
+        from .source_validation import verified_curve
+
+        curve = cls(verified_curve(), scenario)
+        object.__setattr__(curve, "_binding", _CurveBinding(
+            token=_VERIFIED_CURVE_TOKEN, scenario=scenario))
+        return curve
+
+    def require_source_binding(self):
+        """Revalidate provenance and in-memory integrity before sensitive use."""
+        from .source_validation import SourceValidationError, verified_curve
+
+        binding = self._binding
+        if (not isinstance(binding, _CurveBinding) or
+                binding.token is not _VERIFIED_CURVE_TOKEN):
+            raise SourceValidationError(
+                "Curve is not source-bound; use Curve.from_verified_source()")
+        if binding.scenario != self._scenario:
+            raise SourceValidationError("Curve provenance scenario is invalid")
+
+        canonical_nodes = verified_curve()
+        expected = type(self)(canonical_nodes, binding.scenario)
+        state = ("_node_t", "_par", "_times", "_dfs")
+        if any(getattr(self, name) != getattr(expected, name) for name in state):
+            raise SourceValidationError(
+                "Curve in-memory integrity does not match its verified source binding")
+        return canonical_nodes
+
     def df(self, t):
-        return np.exp(np.interp(t, self.times, np.log(self.dfs)))
+        return np.exp(np.interp(t, self._times, np.log(self._dfs)))
 
     def forward(self, start, end):
         if end <= start:

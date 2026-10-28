@@ -65,12 +65,15 @@ export CODEX_NODE_MODULES="<Node.js packages returned by the workspace dependenc
 ln -s "$CODEX_NODE_MODULES" node_modules
 ALM_PYTHON="$(command -v python)" "$CODEX_NODE" src/build_workbook.mjs
 "$CODEX_NODE" src/verify_workbook.mjs
+command -v soffice
+command -v pdftoppm
+python -m src.render_report
 python -m src.artifact_validation
 ```
 
 The workbook is a read-only management snapshot with live summary/delta formulas, 15 native tables and four native charts. Change the Python source/configuration and rerun the full pipeline and builders to refresh it. LibreOffice is used separately for forced native recalculation and saved-file formula checks.
 
-The Word report uses `python-docx`. Its required visual QA uses the Documents skill's `render_docx.py` with LibreOffice and PDF rasterization; rendering is a separate external dependency. The retained page PNGs and PDF in `qa/render` are internal QA evidence. [Actual runtime versions](outputs/metrics/environment.json) record the analytics environment.
+The Word report uses `python-docx`. Visual QA requires LibreOffice's `soffice` executable and Poppler's `pdftoppm` executable on `PATH`. `python -m src.render_report` is the explicit render command. `src.artifact_validation` also runs it automatically when the PDF or page PNGs are missing or older than the DOCX, and fails with an actionable dependency message when either tool is unavailable. Generated files under `qa/render` are ignored internal QA evidence. [Actual runtime versions](outputs/metrics/environment.json) record the analytics environment.
 
 ## Methods and controls
 

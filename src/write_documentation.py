@@ -98,12 +98,15 @@ export CODEX_NODE_MODULES="<Node.js packages returned by the workspace dependenc
 ln -s "$CODEX_NODE_MODULES" node_modules
 ALM_PYTHON="$(command -v python)" "$CODEX_NODE" src/build_workbook.mjs
 "$CODEX_NODE" src/verify_workbook.mjs
+command -v soffice
+command -v pdftoppm
+python -m src.render_report
 python -m src.artifact_validation
 ```
 
 The workbook is a read-only management snapshot with live summary/delta formulas, 15 native tables and four native charts. Change the Python source/configuration and rerun the full pipeline and builders to refresh it. LibreOffice is used separately for forced native recalculation and saved-file formula checks.
 
-The Word report uses `python-docx`. Its required visual QA uses the Documents skill's `render_docx.py` with LibreOffice and PDF rasterization; rendering is a separate external dependency. The retained page PNGs and PDF in `qa/render` are internal QA evidence. [Actual runtime versions](outputs/metrics/environment.json) record the analytics environment.
+The Word report uses `python-docx`. Visual QA requires LibreOffice's `soffice` executable and Poppler's `pdftoppm` executable on `PATH`. `python -m src.render_report` is the explicit render command. `src.artifact_validation` also runs it automatically when the PDF or page PNGs are missing or older than the DOCX, and fails with an actionable dependency message when either tool is unavailable. Generated files under `qa/render` are ignored internal QA evidence. [Actual runtime versions](outputs/metrics/environment.json) record the analytics environment.
 
 ## Methods and controls
 
@@ -142,7 +145,7 @@ Project: Banking Book Interest Rate and Liquidity Stress Testing. Independent sy
 
 - 独立构建 Python 银行账簿 ALM 项目，以美联储 H.8 官方行业占比校准 1 亿美元假设资产负债表，生成 {m['positions']} 笔可复现 synthetic 合同或头寸组，并保存 Treasury 官方曲线、来源哈希及数据血缘。
 - 完成七类内部利率情景下的重定价缺口、12 个月净利息收入及全期限经济价值分析，量化 +200 bps 下约 {abs(m['worst_delta_eve'])/1e4:.1f} 万美元 EVE 下降，并开展存款 beta 与行为期限敏感性分析。
-- 实现三类 90 天流动性压力生存分析和五项 Python／DuckDB 结果对账，交付九页英文 Word 报告与 12 页签 Excel 管理包，保留自动化控制及实际渲染检查证据。
+- 实现三类 90 天流动性压力生存分析和五项 Python／DuckDB 结果对账，交付九页英文 Word 报告与 12 页签 Excel 管理包，并完成自动化控制及实际渲染检查。
 
 Evidence: [metrics](outputs/metrics/key_metrics.json), [QA](qa/QA_REPORT.md), [official lineage](data/processed/public_data_lineage.json). Amounts and scenarios are modeled, not realized financial performance. The H.8 residual-based equity proxy is not regulatory capital and the reported percentage is not a supervisory outlier test. Liquidity outputs are not formal LCR/NSFR.
 ''')
