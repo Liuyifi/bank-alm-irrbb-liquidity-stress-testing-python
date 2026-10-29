@@ -15,11 +15,21 @@ observation and release dates, units, transformations, paths and SHA256 hashes.
   weekly Wednesday levels, not seasonally adjusted. XML USD millions are
   divided by 1,000 for stored USD billions.
 
-The Federal Reserve states that information on its website is generally in the
-public domain unless otherwise indicated and asks users to cite the Board. The
-official government sources provide their material as published and do not
-endorse this project. No seals, logos or third-party graphics are included.
+The Federal Reserve Board's official
+[disclaimer](https://www.federalreserve.gov/disclaimer.htm) states that, unless
+otherwise indicated, information on its website is in the public domain and may
+be copied and distributed without permission; it asks users to cite the Board.
+The Treasury files used here are factual US government data downloaded from the
+official Treasury site. Treasury's
+[site policies and notices](https://home.treasury.gov/subfooter/site-policies-and-notices)
+remain the controlling reference for that site.
 
-Project code is licensed separately under `LICENSE`. Source attribution does
-not change any source-specific terms. Review the official policies before
-redistributing a different or expanded data extract.
+The repository redistributes only the frozen source responses and small factual
+extracts required for reproducibility. The official sources provide their
+material as published and do not endorse this project. No agency seals, logos,
+third-party graphics or materials marked with separate reuse restrictions are
+included.
+
+Project code and original project documentation are licensed separately under
+`LICENSE`. Source attribution does not change any source-specific terms. Review
+the official policies before redistributing a different or expanded extract.

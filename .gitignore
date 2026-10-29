@@ -30,3 +30,17 @@ qa/workbook_reimport.txt
 qa/workbook_summary_inspection.txt
 qa/lo_*/
 qa/tmp/
+data/processed/treasury_risk.duckdb
+data/processed/cashflows.parquet
+data/processed/artifact_payload.json
+STATUS.md
+RESUME_BULLETS.md
+qa/RELEASE_QA.md
+qa/file_manifest.json
+qa/independent_reaudit_20261028/
+qa/focused_recheck_20261028/
+qa/final_source_boundary_recheck_20261028/
+qa/final_source_boundary_repair_20261028/
+qa/release_repair_20261028_p1/
+qa/public_release_packaging_20261029/
+report/artifact.md
