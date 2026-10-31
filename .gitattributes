@@ -3,6 +3,9 @@ data/raw/*.html binary
 data/raw/*.xml binary
 data/raw/*.zip binary
 
+# Official third-party source snapshots should not affect GitHub language statistics.
+data/raw/** linguist-vendored
+
 # Office and analytical binary artifacts.
 *.docx binary
 *.xlsx binary
