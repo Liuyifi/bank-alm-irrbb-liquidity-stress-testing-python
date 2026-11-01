@@ -1,228 +1,745 @@
-"""English nine-page Word report from reviewed metrics and official lineage."""
+"""Build the nine-page recruitment Portfolio Case Study from reviewed outputs."""
+from __future__ import annotations
+
+import csv
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+
 from docx import Document
-from docx.shared import Inches,Pt,RGBColor
+from docx.enum.section import WD_SECTION
+from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT,WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+from docx.opc.constants import RELATIONSHIP_TYPE
+from docx.shared import Inches, Pt, RGBColor
+
 from .config import ROOT
 
-OUTPUT=ROOT/"report/Banking_Book_Interest_Rate_and_Liquidity_Stress_Testing_Report.docx"
+
+OUTPUT = ROOT / "report/Banking_Book_Interest_Rate_and_Liquidity_Stress_Testing_Report.docx"
+QR_IMAGE = ROOT / "report/assets/github_repository_qr.png"
+REPOSITORY_URL = "https://github.com/Liuyifi/bank-alm-irrbb-liquidity-stress-testing-python"
+
+NAVY = "17365D"
+BLUE = "4472C4"
+LIGHT_BLUE = "EAF2F8"
+PALE_BLUE = "F4F8FC"
+PALE_GREY = "F3F5F7"
+MID_GREY = "6B7280"
+GRID = "D9E1E8"
+BLACK = "000000"
+WHITE = "FFFFFF"
 
 
-def million(v,dec=3): return f"{v/1e6:,.{dec}f}"
-def percent(v): return f"{v*100:,.1f}%"
-def signed(v,dec=3): return f"{v/1e6:+,.{dec}f}"
+def million(value, decimals=3):
+    return f"{value / 1e6:,.{decimals}f}"
+
+
+def signed_million(value, decimals=3):
+    return f"{value / 1e6:+,.{decimals}f}"
+
+
+def signed_thousand(value, decimals=1):
+    return f"{value / 1e3:+,.{decimals}f}"
+
+
+def percent(value, decimals=2):
+    return f"{value * 100:,.{decimals}f}%"
+
+
+def _set_repeat_header(row):
+    tr_pr = row._tr.get_or_add_trPr()
+    repeat = OxmlElement("w:tblHeader")
+    repeat.set(qn("w:val"), "true")
+    tr_pr.append(repeat)
+
+
+def _prevent_row_split(row):
+    tr_pr = row._tr.get_or_add_trPr()
+    keep = OxmlElement("w:cantSplit")
+    tr_pr.append(keep)
+
+
+def _set_cell_fill(cell, fill):
+    tc_pr = cell._tc.get_or_add_tcPr()
+    shading = tc_pr.find(qn("w:shd"))
+    if shading is None:
+        shading = OxmlElement("w:shd")
+        tc_pr.append(shading)
+    shading.set(qn("w:fill"), fill)
+
+
+def _set_cell_border(cell, color=GRID, size="4"):
+    tc_pr = cell._tc.get_or_add_tcPr()
+    borders = OxmlElement("w:tcBorders")
+    for side in ("top", "left", "bottom", "right"):
+        edge = OxmlElement(f"w:{side}")
+        edge.set(qn("w:val"), "single")
+        edge.set(qn("w:sz"), size)
+        edge.set(qn("w:color"), color)
+        borders.append(edge)
+    tc_pr.append(borders)
+
+
+def _set_cell_margins(cell, top=90, bottom=90, left=95, right=95):
+    tc_pr = cell._tc.get_or_add_tcPr()
+    margins = OxmlElement("w:tcMar")
+    for side, value in (("top", top), ("bottom", bottom), ("left", left), ("right", right)):
+        node = OxmlElement(f"w:{side}")
+        node.set(qn("w:w"), str(value))
+        node.set(qn("w:type"), "dxa")
+        margins.append(node)
+    tc_pr.append(margins)
+
+
+def _set_run_font(run, size=None, bold=None, color=BLACK, name="Arial"):
+    run.font.name = name
+    run._element.get_or_add_rPr().rFonts.set(qn("w:ascii"), name)
+    run._element.get_or_add_rPr().rFonts.set(qn("w:hAnsi"), name)
+    if size is not None:
+        run.font.size = Pt(size)
+    if bold is not None:
+        run.font.bold = bold
+    run.font.color.rgb = RGBColor.from_string(color)
+
+
+def _add_page_field(paragraph):
+    field = OxmlElement("w:fldSimple")
+    field.set(qn("w:instr"), "PAGE")
+    paragraph._p.append(field)
+
+
+def _add_hyperlink(paragraph, text, url):
+    relationship_id = paragraph.part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
+    hyperlink = OxmlElement("w:hyperlink")
+    hyperlink.set(qn("r:id"), relationship_id)
+    run = OxmlElement("w:r")
+    properties = OxmlElement("w:rPr")
+    color = OxmlElement("w:color")
+    color.set(qn("w:val"), BLUE)
+    underline = OxmlElement("w:u")
+    underline.set(qn("w:val"), "single")
+    properties.extend((color, underline))
+    text_node = OxmlElement("w:t")
+    text_node.text = text
+    run.extend((properties, text_node))
+    hyperlink.append(run)
+    paragraph._p.append(hyperlink)
 
 
 def build():
     from .source_validation import validate_sources
+
     validate_sources()
-    d=json.loads((ROOT/"data/processed/artifact_payload.json").read_text());m=d["metrics"];line=d["lineage"]
-    doc=Document();sec=doc.sections[0]
-    sec.page_width=Inches(8.27);sec.page_height=Inches(11.69)
-    sec.top_margin=Inches(.66);sec.bottom_margin=Inches(.62);sec.left_margin=Inches(.72);sec.right_margin=Inches(.72)
-    sec.header_distance=Inches(.28);sec.footer_distance=Inches(.28)
-    styles=doc.styles
-    # Remove template accent rules inherited by Title/Subtitle in bundled defaults.
+    if not QR_IMAGE.is_file() or QR_IMAGE.stat().st_size == 0:
+        raise FileNotFoundError(
+            f"Local repository QR image is required before report build: {QR_IMAGE}"
+        )
+
+    payload = json.loads((ROOT / "data/processed/artifact_payload.json").read_text())
+    metrics = payload["metrics"]
+    lineage = payload["lineage"]
+    qa_summary = json.loads((ROOT / "qa/checks.json").read_text())
+    qa_checks = {item["check"]: item for item in qa_summary["checks"]}
+    metric_rows = list(csv.DictReader((ROOT / "qa/current_metric_reconciliation.csv").open()))
+    current_metric_passes = sum(row["status"] == "PASS" for row in metric_rows)
+    formula_count = int(qa_checks["excel_formula_caches_present"]["detail"].split()[0])
+
+    document = Document()
+    section = document.sections[0]
+    section.page_width = Inches(8.5)
+    section.page_height = Inches(11)
+    section.top_margin = Inches(0.62)
+    section.bottom_margin = Inches(0.58)
+    section.left_margin = Inches(0.68)
+    section.right_margin = Inches(0.68)
+    section.header_distance = Inches(0.25)
+    section.footer_distance = Inches(0.25)
+    section.different_first_page_header_footer = True
+
+    styles = document.styles
     for style in styles:
-        for border in style.element.xpath('.//w:pBdr'):
+        for border in style.element.xpath(".//w:pBdr"):
             border.getparent().remove(border)
-    for name in ['Normal','Title','Subtitle','Heading 1','Heading 2','Heading 3','Caption']:
-        styles[name].font.name='Arial';styles[name].font.color.rgb=RGBColor(0,0,0)
-    normal=styles['Normal'];normal.font.size=Pt(10.5);normal.paragraph_format.space_after=Pt(7);normal.paragraph_format.line_spacing=1.10
-    styles['Title'].font.size=Pt(24);styles['Title'].font.bold=True
-    styles['Title'].paragraph_format.space_after=Pt(10)
-    styles['Heading 1'].font.size=Pt(17);styles['Heading 1'].paragraph_format.space_after=Pt(9)
-    styles['Heading 2'].font.size=Pt(11.5);styles['Heading 2'].font.bold=True
-    styles['Heading 2'].paragraph_format.space_before=Pt(9);styles['Heading 2'].paragraph_format.space_after=Pt(5)
-    styles['Caption'].font.size=Pt(9);styles['Caption'].paragraph_format.space_after=Pt(7)
-    header=sec.header.paragraphs[0];header.text='TREASURY RISK ANALYTICS     |     STYLIZED BANKING BOOK'
-    header.runs[0].font.size=Pt(8);header.runs[0].font.color.rgb=RGBColor(0,0,0)
-    footer=sec.footer.paragraphs[0];footer.alignment=WD_ALIGN_PARAGRAPH.RIGHT
-    footer.add_run('23 October 2026     |     ')
-    field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');footer._p.append(field)
-    for r in footer.runs:r.font.size=Pt(8)
-    doc.core_properties.title='Banking Book Interest Rate and Liquidity Stress Testing'
-    doc.core_properties.subject='Independent public-data-anchored synthetic ALM and liquidity portfolio project'
-    doc.core_properties.author='Portfolio Research'
-    doc.core_properties.last_modified_by='Portfolio Research'
-    doc.core_properties.created=datetime(2026,10,23,tzinfo=timezone.utc)
-    doc.core_properties.modified=datetime(2026,10,23,tzinfo=timezone.utc)
+    for name in ("Normal", "Title", "Subtitle", "Heading 1", "Heading 2", "Heading 3", "Caption"):
+        styles[name].font.name = "Arial"
+        styles[name]._element.get_or_add_rPr().rFonts.set(qn("w:ascii"), "Arial")
+        styles[name]._element.get_or_add_rPr().rFonts.set(qn("w:hAnsi"), "Arial")
 
-    def p(text,style=None): return doc.add_paragraph(text,style)
-    def h(text):doc.add_heading(text,level=2)
-    def page(title):doc.add_page_break();doc.add_heading(title,level=1)
-    def table(headers,rows,widths=None,fontsize=9.3):
-        t=doc.add_table(rows=1,cols=len(headers));t.alignment=WD_TABLE_ALIGNMENT.CENTER;t.autofit=False
-        if widths:
-            for col,w in zip(t.columns,widths):col.width=Inches(w)
-        for c,text in zip(t.rows[0].cells,headers):c.text=str(text)
-        for row in rows:
-            for c,text in zip(t.add_row().cells,row):c.text=str(text)
-        for i,row in enumerate(t.rows):
-            pr=row._tr.get_or_add_trPr();keep=OxmlElement('w:cantSplit');pr.append(keep)
-            if i==0:
-                repeat=OxmlElement('w:tblHeader');pr.append(repeat)
-            for j,c in enumerate(row.cells):
-                if widths:c.width=Inches(widths[j])
-                c.vertical_alignment=WD_CELL_VERTICAL_ALIGNMENT.CENTER
-                tcPr=c._tc.get_or_add_tcPr()
-                borders=OxmlElement('w:tcBorders')
-                for side in ['top','left','bottom','right']:
-                    e=OxmlElement('w:'+side);e.set(qn('w:val'),'single');e.set(qn('w:sz'),'4');e.set(qn('w:color'),'D9D9D9');borders.append(e)
-                tcPr.append(borders)
-                shd=OxmlElement('w:shd');shd.set(qn('w:fill'),'16324F' if i==0 else ('EFF3F7' if i%2==0 else 'FFFFFF'));tcPr.append(shd)
-                margins=OxmlElement('w:tcMar')
-                for side in ['top','bottom','left','right']:
-                    e=OxmlElement('w:'+side);e.set(qn('w:w'),'65');e.set(qn('w:type'),'dxa');margins.append(e)
-                tcPr.append(margins)
-                for par in c.paragraphs:
-                    par.paragraph_format.space_after=Pt(0);par.paragraph_format.line_spacing=1.06
-                    par.alignment=WD_ALIGN_PARAGRAPH.LEFT if j==0 else WD_ALIGN_PARAGRAPH.CENTER
-                    for run in par.runs:
-                        run.font.size=Pt(fontsize);run.font.bold=i==0;run.font.color.rgb=RGBColor(255,255,255) if i==0 else RGBColor(0,0,0)
-        doc.add_paragraph().paragraph_format.space_after=Pt(0)
-        return t
-    def fig(name,caption,width=6.6):
-        par=doc.add_paragraph();par.paragraph_format.space_after=Pt(2)
-        run=par.add_run();run.add_picture(str(ROOT/f'outputs/figures/{name}.png'),width=Inches(width))
-        # Native accessibility description in the drawing.
-        pr=run._r.xpath('.//wp:docPr')[0];pr.set('descr',caption)
-        p(caption,'Caption')
+    normal = styles["Normal"]
+    normal.font.size = Pt(9.5)
+    normal.font.color.rgb = RGBColor.from_string(BLACK)
+    normal.paragraph_format.space_after = Pt(5)
+    normal.paragraph_format.line_spacing = 1.08
 
-    doc.add_paragraph('Banking Book Interest Rate and Liquidity Stress Testing','Title')
-    p('Public data anchored synthetic portfolio study for Treasury Risk and ALM', 'Subtitle')
-    doc.add_heading('Executive Summary',level=1)
-    p(f"The book is more exposed to changes in long-term economic value than to the first year of interest income. "
-      f"A parallel increase of 200 basis points reduces EVE by USD {million(abs(m['worst_delta_eve']))} million "
-      f"and 12-month NII by USD {abs(m['worst_delta_nii'])/1000:,.1f} thousand. Treasury review should prioritize fixed-rate asset duration and the stability of deposit behavior.")
-    table(['Measure','Base or adverse result'],[
-        ['Total assets and records',f"USD {million(m['total_assets'],1)}m across {m['positions']} synthetic records"],
-        ['Base 12-month NII',f"USD {million(m['base_nii'])}m"],
-        ['Worst Delta NII',f"USD {signed(m['worst_delta_nii'])}m  ({percent(m['worst_delta_nii_pct'])})"],
-        ['Base EVE',f"USD {million(m['base_eve'])}m"],
-        ['Worst Delta EVE',f"USD {signed(m['worst_delta_eve'])}m  ({percent(m['worst_delta_eve_equity_proxy_pct'])} of stylized equity proxy)"],
-        ['Combined liquidity result',f"No breach in 90 days; USD {million(d['liquidity_scenarios'][2]['remaining_liquidity_buffer'])}m terminal buffer"]
-    ],[3.0,3.8],10)
-    p('The modest default NII decline depends on assumed deposit pass-through. Setting all non-maturity deposit betas to 15% changes the +200 bps NII result to a gain, while a 55% beta produces a larger loss. The default projection therefore provides a scenario result, not a reliable forecast of realized earnings.')
-    p('Combined stress consumes almost all available liquidity over the tested horizon. A survival statement of at least 90 days is justified; a longer survival estimate is not. The analysis should support review of deposit retention assumptions, liquid-asset eligibility and the timing of monetization before any limit or hedging decision.')
-    h('Scope and evidence')
-    p(f"Official Treasury par yields observed on {line['treasury']['curve_date']} anchor market rates. Federal Reserve H.8 released on {line['h8']['release_date']}, with observations for {line['h8']['observation_date']}, anchors industry balance-sheet shares. All {m['positions']} contract/group records remain synthetic. This is an independent portfolio project, with internal illustrative shocks and liquidity proxies. It has not been deployed or approved for regulatory use.")
+    styles["Title"].font.size = Pt(25)
+    styles["Title"].font.bold = True
+    styles["Title"].font.color.rgb = RGBColor.from_string(NAVY)
+    styles["Title"].paragraph_format.space_after = Pt(8)
 
-    page('Balance Sheet and Assumptions')
-    p('The observed H.8 all-commercial-bank balance sheet is scaled to USD 100 million of assets. Category shares are preserved to within 0.01 percentage point. No single bank is represented. The public residual share supplies the H.8 residual-based equity proxy. It is not regulatory capital.')
-    table(['Side','Synthetic product','USD m','Records'],[
-        [r['side'].title(),r['product'],million(r['principal']),r['positions']] for r in d['balance_sheet']
-    ],[.7,3.65,1.2,1.25],9.1)
-    h('Observed inputs and modeled fields')
-    p('Observed inputs are Treasury par yields and H.8 cash, securities, gross loans, deposits, borrowings, other liabilities, net due to foreign offices and residual balances. H.8 is not seasonally adjusted. XML levels in USD millions are converted to USD billions for calibration.')
-    p('Model assumptions divide loans 40:25:10 across mortgages, corporate and consumer products, and deposits 55:20 across non-maturity and term products. Broad securities are represented by fixed-rate government proxies. Net other assets include the effect of loan-loss allowances and unmodeled asset categories; other liabilities include net due to foreign offices. Both other categories remain at carrying value and are not treated as liquid resources.')
-    p('Remaining maturities, coupons, reset dates, amortization, reference spreads, deposit betas and runoff rates are simulated with seed 20261023. Contract weights are lognormal, normalized to calibrated product totals and rounded to cents. Record counts reflect manageable contract/group detail, not a claim about industry customer counts.')
-    h('Behavior and contractual schedules')
-    p(f"Mortgages and consumer loans amortize by equal principal. Corporate loans, securities and term funding are bullet instruments. Interest pays monthly on an ACT/365 basis. NMDs have legal demand maturity but a separate 24–60 month equal-principal behavioral runoff for IRRBB, with monthly betas between 15% and 55%. Their principal-weighted average life is {d['nmd_principal_wal_years']:.3f} years; this is not an estimated market duration. Cash has zero modeled yield. These fields are not inferred from H.8.")
+    styles["Subtitle"].font.size = Pt(12)
+    styles["Subtitle"].font.color.rgb = RGBColor.from_string(MID_GREY)
+    styles["Subtitle"].paragraph_format.space_after = Pt(16)
 
-    page('Repricing Gap')
-    p('Rate-sensitive principal is assigned to the first contractual reset, or final maturity for fixed-rate instruments. Non-maturity deposits reprice monthly and fall in the shortest bucket. Cash, other non-rate-sensitive items and equity are shown separately from RSA and RSL. This stock gap does not allocate every future amortization installment.')
-    fig('repricing_gap','Figure 1  Rate-sensitive assets and liabilities by next repricing bucket')
-    table(['Bucket','RSA','RSL','Gap','Cumulative','Gap / assets'],[
-        [r['bucket'],million(r['rsa'],2),million(r['rsl'],2),million(r['periodic_gap'],2),million(r['cumulative_gap'],2),percent(r['gap_pct_total_assets'])]
-        for r in d['repricing_gap']
-    ],[2.02,.83,.83,.83,1.13,1.16],9)
-    p('Amounts are USD million. Negative short-bucket gaps identify more immediately repricing funding than assets. A low deposit beta can offset part of that exposure, so the gap alone does not determine NII sensitivity. Longer fixed-rate asset cash flows are the principal reason economic-value sensitivity remains material.')
-    p('Python and SQL assign buckets independently using exact one-, three-, six-, twelve-, twenty-four- and sixty-month anniversary cutoffs. Balance-sheet totals and each RSA/RSL bucket reconcile to a USD 0.01 tolerance.')
+    styles["Heading 1"].font.size = Pt(18)
+    styles["Heading 1"].font.bold = True
+    styles["Heading 1"].font.color.rgb = RGBColor.from_string(NAVY)
+    styles["Heading 1"].paragraph_format.space_before = Pt(0)
+    styles["Heading 1"].paragraph_format.space_after = Pt(8)
+    styles["Heading 1"].paragraph_format.keep_with_next = True
 
-    page('NII Sensitivity')
-    p('The 12-month simulation follows the existing book as it runs off. Fixed coupons remain unchanged until maturity. Floating corporate loans retain their current coupons until the scheduled reset and then use the shocked Treasury-implied forward proxy plus spread. Matured principal is not reinvested or replaced, so these results measure a run-off book rather than constant-balance-sheet earnings.')
-    fig('nii_sensitivity','Figure 2  Twelve month Delta NII under internal illustrative scenarios')
-    table(['Internal scenario','NII USD m','Delta USD m','Delta / Base'],[
-        [r['scenario'],million(r['nii']),signed(r['delta_nii']),percent(r['delta_nii_pct'])] for r in d['nii_scenarios']
-    ],[2.78,1.25,1.45,1.32],9.5)
-    h('Why the default effect is small')
-    worst=[r for r in d['product_contributions'] if r['scenario']==m['worst_nii_scenario']]
-    corp=next(r for r in worst if r['product']=='Floating-rate corporate loans');nmd=next(r for r in worst if r['product']=='Non-maturity retail deposits')
-    p(f"Under +200 bps, floating corporate income contributes USD {signed(corp['delta_nii'])}m while higher NMD expense contributes USD {signed(nmd['delta_nii'])}m. Fixed-rate products have zero Delta NII in the run-off model. The difference is a small net decline, not proof that the book is immunized.")
-    p('NMD coupons equal initial coupon plus beta times the change in the one-month forward index, floored at zero. The initial index is frozen from the Base curve so shocks do not cancel. The Base case permits curve-implied future repricing; down shocks become asymmetric when deposit coupon floors bind.')
+    styles["Heading 2"].font.size = Pt(11.5)
+    styles["Heading 2"].font.bold = True
+    styles["Heading 2"].font.color.rgb = RGBColor.from_string(BLUE)
+    styles["Heading 2"].paragraph_format.space_before = Pt(7)
+    styles["Heading 2"].paragraph_format.space_after = Pt(4)
+    styles["Heading 2"].paragraph_format.keep_with_next = True
 
-    page('EVE Sensitivity')
-    p('EVE is the discounted value of asset cash flows less liability cash flows, excluding equity as a liability. Future principal and interest are generated over the full modeled remaining life. Floating coupons are reprojected under each stressed curve. NMD principal follows the behavioral maturity schedule rather than the legal demand maturity.')
-    fig('eve_sensitivity','Figure 3  Delta EVE under internal illustrative scenarios')
-    table(['Internal scenario','Asset PV','Liability PV','EVE','Delta EVE','Delta / equity proxy'],[
-        [r['scenario'],million(r['asset_pv'],2),million(r['liability_pv'],2),million(r['eve'],2),signed(r['delta_eve'],2),percent(r['delta_eve_equity_proxy_pct'])] for r in d['eve_scenarios']
-    ],[2.17,.92,.97,.82,.94,.98],8.9)
-    p(f"Amounts are USD million. The worst tested change is USD {signed(m['worst_delta_eve'])}m under {m['worst_eve_scenario']}, or {percent(m['worst_delta_eve_equity_proxy_pct'])} of the USD {million(m['equity_residual_proxy'])}m H.8 residual-based equity proxy. This ratio is descriptive; it is not a regulatory capital ratio, a BCBS supervisory outlier test, or a capital-adequacy conclusion.")
-    h('Curve construction and valuation boundary')
-    p('Each scenario shocks observed par nodes before constructing a simplified discount-curve proxy. Short maturities use a simple annual-rate approximation. From six months onward, synthetic semiannual par bonds are bootstrapped on a half-year grid using linearly interpolated par rates. Discount factors interpolate log-linearly between grid points. The model does not calibrate a zero curve from coupon-instrument prices, and this proxy is not an official Treasury zero curve.')
-    p('Cash and other non-rate-sensitive categories are carried at book value as time-zero valuation entries. No credit-spread shock, prepayment, embedded option, basis risk, hedge, or endogenous deposit migration is modeled. Monthly coupon conventions approximate securities and funding cash-flow timing.')
+    styles["Caption"].font.size = Pt(8)
+    styles["Caption"].font.italic = True
+    styles["Caption"].font.color.rgb = RGBColor.from_string(MID_GREY)
+    styles["Caption"].paragraph_format.space_after = Pt(4)
 
-    page('Liquidity Stress and Survival Horizon')
-    p('A daily 90-day ledger starts with cash and adds realized government-security monetization, recognized contractual loan inflows and stress outflows. Securities are monetized once at their Base EVE value after the scenario haircut. Their subsequent coupons and maturities are excluded, preventing double counting. Other assets contribute no monetization capacity.')
-    fig('liquidity_survival','Figure 4  Available cash after stress flows and scheduled monetization')
-    table(['Scenario','Capacity','Outflows','Inflows','Peak need','End buffer','Survival'],[
-        [r['scenario'],million(r['counterbalancing_capacity'],2),million(r['total_outflow'],2),million(r['recognized_inflow'],2),million(r['peak_funding_need'],2),million(r['remaining_liquidity_buffer'],2),'At least 90d' if r['survival_censored'] else str(r['survival_days'])+'d'] for r in d['liquidity_scenarios']
-    ],[1.27,.88,.88,.88,.88,.9,1.11],9)
-    p('Amounts are USD million. All scenarios survive the tested window, so none supports an estimate beyond 90 days. Combined terminal cash is the minimum buffer in that scenario. Counterbalancing capacity is potential sale proceeds before realization and a declining stock afterward; it is not added to cash a second time.')
-    table(['Assumption','Idiosyncratic','Market wide','Combined'],[
-        ['Retail baseline runoff multiplier','2.0x','1.2x','4.0x'],
-        ['Term nonrenewal / wholesale loss','50% / 75%','65% / 85%','100% / 100%'],
-        ['Commitment draw / total haircut','25% / 5%','40% / 10%','65% / 14%'],
-        ['Monetization day / collection rate','2 / 95%','5 / 85%','7 / 80%']
-    ],[2.65,1.38,1.38,1.39],9)
-    p('Retail runoff is 7.5–12.5% per record before the scenario multiplier, spread across days with normalized exponential weights. The internal daily cap recognizes inflows only up to 75% of the same-day outflow; excess inflows are discarded rather than carried forward. This conservative timing rule is not a regulatory LCR implementation. No NSFR is calculated.')
+    header = section.header.paragraphs[0]
+    header.text = "Bank ALM / IRRBB & Liquidity Stress Testing | Yifei Liu"
+    header.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    for run in header.runs:
+        _set_run_font(run, 7.8, color=MID_GREY)
+    section.first_page_header.paragraphs[0].text = ""
 
-    page('Management Interpretation')
-    p('The same +200 bps shock produces a small first-year earnings decline and a much larger economic-value decline. Treasury management should read both measures together: delayed repricing protects current coupons but leaves long-lived assets exposed to higher discount rates. A large accounting cash balance does not remove valuation risk.')
-    table(['Product','Delta NII USD m','Delta EVE USD m'],[
-        [r['product'],signed(r['delta_nii']),signed(r['delta_eve'])] for r in worst
-    ],[3.75,1.5,1.55],9.3)
-    p('Product contributions above reconcile to the +200 bps aggregate. Signs reflect net income and net economic value; a positive liability EVE contribution offsets asset losses. The table is a bridge of modeled results, not a proposed hedge allocation.')
-    h('Validate deposit behavior before setting limits')
-    variants={r['variant']:r for r in d['nmd_model_sensitivity'] if r['scenario']=='Parallel up 200 bps'}
-    p(f"At a uniform 15% NMD beta, +200 bps Delta NII is USD {signed(variants['NMD beta 15%']['delta_nii'])}m; at 55% it is USD {signed(variants['NMD beta 55%']['delta_nii'])}m. Halving behavioral maturities changes Delta EVE to USD {signed(variants['NMD maturity 50%']['delta_eve'])}m, while extending them by 50% changes it to USD {signed(variants['NMD maturity 150%']['delta_eve'])}m. Each comparison uses its own Base valuation. Deposit assumptions can change the earnings direction and materially alter EVE.")
-    h('Review liquidity concentration and execution')
-    p('Combined stress leaves approximately 1% of total assets in cash at day 90. Review the availability of unencumbered securities, realistic settlement delays and deposit runoff concentration. The current model assumes all government holdings are eligible for sale and excludes other-liability cash calls. Those assumptions require evidence before treating the terminal buffer as usable contingency capacity.')
-    p('A next analytical step is to compare duration reduction, additional liquid resources and deposit-retention strategies under validated assumptions. No hedging cost, instrument eligibility or optimization has been modeled, so this report does not select a transaction.')
+    def set_footer(footer):
+        paragraph = footer.paragraphs[0]
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        run = paragraph.add_run("Yifei Liu | Portfolio Project    Page ")
+        _set_run_font(run, 7.8, color=MID_GREY)
+        _add_page_field(paragraph)
 
-    page('Limitations and Next Steps')
-    h('Public aggregates do not reveal contract risk')
-    p('H.8 anchors an industry balance-sheet structure. It does not supply a bank-specific contractual maturity ladder, deposit beta, liquidity eligibility, regulatory capital or account-level behavior. The internal loan and deposit splits and the mapping of broad securities to government proxies simplify the published categories. Gross loans and the residual net-asset adjustment preserve the observed total without constructing a synthetic trading book.')
-    h('Interest rate and valuation limitations')
-    p('The model excludes mortgage prepayment, consumer early repayment, default, embedded options, derivative hedges, credit-spread changes, basis shocks and dynamic customer migration. Equal-principal amortization is not a standard annuity mortgage schedule. Treasury-implied forwards are a pricing proxy, not SOFR. Cash has zero yield. Other assets and liabilities are rate-insensitive at carrying value, which can understate their actual risk.')
-    p('NII uses existing-book runoff rather than a constant or dynamic balance sheet. EVE includes contractual margins and projected floating coupons, so it is not a claim to any regulatory standardized implementation. Par-to-discount construction and monthly payments approximate market conventions. Only seven deterministic internal rate scenarios are tested; no probabilistic loss estimate is produced.')
-    h('Liquidity and capital limitations')
-    p('The stress framework does not model insurance status, depositor concentration, intraday settlement, collateral encumbrance, central-bank eligibility, reserve requirements, FX mismatches, derivative margin calls, or cash outflows from the other-liability proxy. Retail runoff and commitment draw schedules are imposed. Rolled funding principal is assumed to remain beyond 90 days, with ongoing interest expense. Newly drawn commitments generate no inflows within the window.')
-    p('The daily inflow cap, loan collection discounts and asset haircuts are internal assumptions. Available market capacity is unlimited at the haircut price. A no-breach result is censored at 90 days, not evidence of indefinite survival. The H.8 residual is an accounting aggregate used solely as a stylized equity proxy and cannot support a capital-adequacy conclusion or supervisory outlier test.')
-    h('Recommended development sequence')
-    p('First replace behavior assumptions with a documented estimation and challenge process. Then add contractual instrument payment calendars, prepayment and basis-risk models. Extend liquidity to encumbrance, concentration and collateral channels and test cap conventions. Add hedges and costs only after the unhedged model is reconciled. A production workflow would require independent model validation, governance, controlled data feeds and an approved operating specification.')
-    h('Validation completed')
-    p(f"The engine passes {m['core_checks_passed']} dataset controls. The full pytest suite includes source-lock attacks, independently expected contract examples, par-bond repricing, discount monotonicity, reset timing, principal conservation, beta sensitivity and liquidity stock accounting. Five Python/SQL controls pass at USD 0.01: balance and repricing are independent recomputations; liquidity, NII and EVE are partial recomputations using shared Python cash flows or discount inputs. These checks establish internal consistency within the stated assumptions; they do not validate the assumptions empirically.")
+    set_footer(section.footer)
+    set_footer(section.first_page_footer)
 
-    page('Technical Appendix')
-    p('Pipeline order: mandatory locked-source and observation-lineage validation, H.8 calibration, synthetic positions, shared cash-flow schedules, Python aggregation, DuckDB reconciliation, automated controls, figures and management artifacts. The frozen run is offline-reproducible; refresh is prohibited in the locked release. All figures and report numbers read the saved CSV and JSON outputs.')
-    table(['Measure','Implementation'],[
-        ['Repricing gap','RSA minus RSL by first reset/fixed maturity; cumulative sum in bucket order'],
-        ['NII','Sum of 12-month asset interest less liability interest; Delta = scenario minus Base'],
-        ['EVE','Sum of signed discounted full-life principal and interest; equity excluded'],
-        ['Liquidity gap','Opening cash + cumulative recognized inflows - outflows + realized monetization'],
-        ['Survival','Last fully funded day before first negative daily gap; at least 90 if no breach'],
-        ['Shock definition','Parallels +/-100/200 bps; steepener 0.01(1-2 exp(-t/4)); flattener opposite']
-    ],[1.35,5.45],8.9)
-    h('Official sources and acquisition record')
-    p('US Treasury Daily Treasury Par Yield Curve Rates\n'+line['treasury']['source_url'])
-    p(f"Observation {line['treasury']['observation_date']}; selected feed updated {line['treasury']['feed_updated_timestamp']}. Publication-date metadata is the Atom entry update date, not an independently observed market-close timestamp.")
-    p('Federal Reserve H.8 official downloadable XML\n'+line['h8']['source_url']+'\nOfficial release cross-check '+line['h8']['release_page'])
-    p(f"H.8 released {line['h8']['release_date']}; observed {line['h8']['observation_date']}; all US commercial banks, not seasonally adjusted. Downloaded {line['download_time']}. XML source units are USD millions. No fallback source was used.")
-    hashes=table(['Frozen source file','SHA256'],[[Path(r['path']).name,r['sha256']] for r in line['files']],[2.65,4.15],7.6)
-    for row in hashes.rows[1:]:
-        for c in row.cells:
-            for par in c.paragraphs:
-                par.alignment=WD_ALIGN_PARAGRAPH.LEFT
-    p('Field mappings, source sizes and full paths: data/processed/public_data_lineage.json. Contract fields: data/processed/field_dictionary.csv. Reconciliation SQL: sql/. Control evidence: qa/.',style='Caption')
-    doc.save(OUTPUT)
+    properties = document.core_properties
+    properties.title = "Bank ALM / IRRBB & Liquidity Stress Testing"
+    properties.subject = (
+        "Recruitment Portfolio Case Study in Treasury Risk, ALM, IRRBB and Liquidity Stress Testing"
+    )
+    properties.author = "Yifei Liu"
+    properties.last_modified_by = "Yifei Liu"
+    properties.created = datetime(2026, 11, 1, tzinfo=timezone.utc)
+    properties.modified = datetime(2026, 11, 1, tzinfo=timezone.utc)
+
+    def add_paragraph(text="", style=None, before=0, after=None, keep=False):
+        paragraph = document.add_paragraph(style=style)
+        paragraph.add_run(text)
+        paragraph.paragraph_format.space_before = Pt(before)
+        if after is not None:
+            paragraph.paragraph_format.space_after = Pt(after)
+        paragraph.paragraph_format.keep_with_next = keep
+        return paragraph
+
+    def add_rich_paragraph(parts, before=0, after=5, style=None):
+        paragraph = document.add_paragraph(style=style)
+        paragraph.paragraph_format.space_before = Pt(before)
+        paragraph.paragraph_format.space_after = Pt(after)
+        for text, bold in parts:
+            run = paragraph.add_run(text)
+            run.bold = bold
+        return paragraph
+
+    def add_bullet(text, level=0):
+        paragraph = document.add_paragraph(style="List Bullet" if level == 0 else "List Bullet 2")
+        paragraph.add_run(text)
+        paragraph.paragraph_format.left_indent = Inches(0.18 + level * 0.16)
+        paragraph.paragraph_format.first_line_indent = Inches(-0.12)
+        paragraph.paragraph_format.space_after = Pt(2.5)
+        paragraph.paragraph_format.line_spacing = 1.03
+        for run in paragraph.runs:
+            _set_run_font(run, 9.1)
+        return paragraph
+
+    def new_page(title):
+        document.add_page_break()
+        document.add_heading(title, level=1)
+
+    def add_table(headers, rows, widths, font_size=8.5, aligns=None):
+        table = document.add_table(rows=1, cols=len(headers))
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        table.autofit = False
+        for index, width in enumerate(widths):
+            table.columns[index].width = Inches(width)
+        for cell, text in zip(table.rows[0].cells, headers):
+            cell.text = str(text)
+        for row_data in rows:
+            row = table.add_row()
+            for cell, text in zip(row.cells, row_data):
+                cell.text = str(text)
+        _set_repeat_header(table.rows[0])
+        for row_index, row in enumerate(table.rows):
+            _prevent_row_split(row)
+            for column_index, cell in enumerate(row.cells):
+                cell.width = Inches(widths[column_index])
+                cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+                _set_cell_border(cell)
+                _set_cell_margins(cell)
+                _set_cell_fill(cell, NAVY if row_index == 0 else (PALE_BLUE if row_index % 2 == 0 else WHITE))
+                for paragraph in cell.paragraphs:
+                    paragraph.paragraph_format.space_after = Pt(0)
+                    paragraph.paragraph_format.line_spacing = 1.03
+                    alignment = (aligns or ["left"] * len(headers))[column_index]
+                    paragraph.alignment = {
+                        "left": WD_ALIGN_PARAGRAPH.LEFT,
+                        "center": WD_ALIGN_PARAGRAPH.CENTER,
+                        "right": WD_ALIGN_PARAGRAPH.RIGHT,
+                    }[alignment]
+                    for run in paragraph.runs:
+                        _set_run_font(
+                            run,
+                            font_size,
+                            bold=row_index == 0,
+                            color=WHITE if row_index == 0 else BLACK,
+                        )
+        spacer = document.add_paragraph()
+        spacer.paragraph_format.space_after = Pt(0)
+        return table
+
+    def add_kpi_grid(items, columns=2, metric_size=16, label_size=8.5):
+        rows = (len(items) + columns - 1) // columns
+        table = document.add_table(rows=rows, cols=columns)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        table.autofit = False
+        width = 7.0 / columns
+        for row_index, row in enumerate(table.rows):
+            _prevent_row_split(row)
+            for column_index, cell in enumerate(row.cells):
+                cell.width = Inches(width)
+                cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+                _set_cell_border(cell, color="C9D8E8")
+                _set_cell_margins(cell, top=110, bottom=110, left=110, right=110)
+                _set_cell_fill(cell, LIGHT_BLUE if row_index % 2 == 0 else PALE_BLUE)
+                item_index = row_index * columns + column_index
+                cell.text = ""
+                if item_index >= len(items):
+                    continue
+                metric_text, label_text = items[item_index]
+                metric_paragraph = cell.paragraphs[0]
+                metric_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                metric_paragraph.paragraph_format.space_after = Pt(2)
+                metric_run = metric_paragraph.add_run(metric_text)
+                _set_run_font(metric_run, metric_size, True, NAVY)
+                label_paragraph = cell.add_paragraph()
+                label_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                label_paragraph.paragraph_format.space_after = Pt(0)
+                label_run = label_paragraph.add_run(label_text)
+                _set_run_font(label_run, label_size, False, MID_GREY)
+        spacer = document.add_paragraph()
+        spacer.paragraph_format.space_after = Pt(0)
+        return table
+
+    def add_figure(filename, caption, alt_text, width=6.7):
+        paragraph = document.add_paragraph()
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        paragraph.paragraph_format.space_after = Pt(1)
+        run = paragraph.add_run()
+        run.add_picture(str(ROOT / "outputs/figures" / filename), width=Inches(width))
+        drawing_properties = run._r.xpath(".//wp:docPr")[0]
+        drawing_properties.set("descr", alt_text)
+        caption_paragraph = document.add_paragraph(caption, style="Caption")
+        caption_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    def add_workflow(stages):
+        table = document.add_table(rows=len(stages) * 2 - 1, cols=1)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        table.autofit = False
+        for row_index, row in enumerate(table.rows):
+            cell = row.cells[0]
+            cell.width = Inches(5.7)
+            cell.text = ""
+            paragraph = cell.paragraphs[0]
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            paragraph.paragraph_format.space_after = Pt(0)
+            if row_index % 2 == 0:
+                _set_cell_fill(cell, LIGHT_BLUE if (row_index // 2) % 2 == 0 else PALE_GREY)
+                _set_cell_border(cell, color=GRID)
+                _set_cell_margins(cell, top=55, bottom=55, left=90, right=90)
+                run = paragraph.add_run(stages[row_index // 2])
+                _set_run_font(run, 8.5, True, NAVY)
+            else:
+                _set_cell_fill(cell, WHITE)
+                _set_cell_border(cell, color=WHITE)
+                _set_cell_margins(cell, top=0, bottom=0, left=0, right=0)
+                run = paragraph.add_run("↓")
+                _set_run_font(run, 9.5, True, BLUE)
+        return table
+
+    # Page 1: Portfolio cover
+    portfolio_tag = add_paragraph("YIFEI LIU'S PORTFOLIO CASE STUDY", after=6)
+    for run in portfolio_tag.runs:
+        _set_run_font(run, 9.5, True, BLUE)
+    document.add_paragraph("Bank ALM / IRRBB & Liquidity Stress Testing", style="Title")
+    document.add_paragraph(
+        "A Python, SQL and Excel Portfolio Study of Interest Rate Risk,\n"
+        "EVE / NII Sensitivity and 90-Day Liquidity Stress",
+        style="Subtitle",
+    )
+    document.add_heading("PROJECT SNAPSHOT", level=2)
+    add_kpi_grid(
+        [
+            (f"USD {million(metrics['total_assets'], 0)}M", "Synthetic Banking Book"),
+            (f"USD {signed_million(metrics['worst_delta_eve'])}M", "Worst Delta EVE"),
+            (f"USD {signed_thousand(metrics['worst_delta_nii'])}K", "Worst 12M Delta NII"),
+            ("≥90 Days", "Combined Stress Survival"),
+        ],
+        columns=2,
+        metric_size=15.5,
+        label_size=8.8,
+    )
+    document.add_heading("PROJECT INFORMATION", level=2)
+    add_table(
+        ["Field", "Content"],
+        [
+            ["Author", "Yifei Liu"],
+            ["Target roles", "Treasury / ALM Analyst | Market Risk Analyst | Risk Analytics / Model Validation"],
+            ["Core stack", "Python | SQL | DuckDB | Excel"],
+            ["Risk focus", "ALM | IRRBB | Liquidity Stress Testing"],
+            ["Portfolio", f"{metrics['positions']} synthetic contract / group records"],
+            ["Positioning", "Reproducible ALM / IRRBB and liquidity stress-testing portfolio project"],
+        ],
+        [1.35, 5.65],
+        font_size=8.6,
+        aligns=["left", "left"],
+    )
+    repository_table = document.add_table(rows=1, cols=2)
+    repository_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    repository_table.autofit = False
+    qr_cell, repository_cell = repository_table.rows[0].cells
+    qr_cell.width = Inches(1.35)
+    repository_cell.width = Inches(5.65)
+    for cell in repository_table.rows[0].cells:
+        _set_cell_border(cell, color=GRID)
+        _set_cell_margins(cell, top=70, bottom=70, left=90, right=90)
+        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+    qr_paragraph = qr_cell.paragraphs[0]
+    qr_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    qr_run = qr_paragraph.add_run()
+    qr_run.add_picture(str(QR_IMAGE), width=Inches(0.92))
+    qr_properties = qr_run._r.xpath(".//wp:docPr")[0]
+    qr_properties.set("descr", "QR code linking to the public GitHub repository")
+    repository_cell.text = ""
+    label_paragraph = repository_cell.paragraphs[0]
+    label_run = label_paragraph.add_run("Repository\n")
+    _set_run_font(label_run, 8.7, True, NAVY)
+    _add_hyperlink(label_paragraph, REPOSITORY_URL, REPOSITORY_URL)
+    scan_paragraph = repository_cell.add_paragraph("Scan the QR code to review the code, evidence and reproducible workflow.")
+    scan_paragraph.paragraph_format.space_after = Pt(0)
+    for run in scan_paragraph.runs:
+        _set_run_font(run, 8.3, color=MID_GREY)
+
+    # Page 2: Executive Summary
+    new_page("Executive Summary")
+    add_paragraph(
+        "This portfolio case study assesses earnings sensitivity, long-term economic-value exposure "
+        "and short-term liquidity resilience for a stylized banking book. I built the deterministic "
+        "portfolio, contract-level cash-flow engine, scenario framework, daily liquidity ledger, "
+        "DuckDB reconciliation layer and Excel management pack from reviewed public-source inputs.",
+        after=7,
+    )
+    add_table(
+        ["Portfolio evidence", "Evidence"],
+        [
+            ["Business problem", "Measure repricing mismatch, 12-month NII sensitivity, full-life EVE exposure and 90-day liquidity resilience together."],
+            ["What I built", f"A deterministic {metrics['positions']}-record balance sheet, cash-flow engine, seven rate scenarios, three liquidity stresses and a reconciliation framework."],
+            ["Key IRRBB result", f"{metrics['worst_eve_scenario']} is the dominant tested economic-value shock: Delta EVE is USD {signed_million(metrics['worst_delta_eve'])}m."],
+            ["Earnings result", f"Worst 12-month Delta NII is much smaller at USD {signed_thousand(metrics['worst_delta_nii'])}k under the default behavioral assumptions."],
+            ["Liquidity result", f"All scenarios survive at least 90 days; Combined finishes with USD {million(payload['liquidity_scenarios'][2]['remaining_liquidity_buffer'])}m available cash."],
+            ["Validation", f"{qa_summary['pytest']['tests']} / {qa_summary['pytest']['tests']} pytest; {qa_summary['automated_check_count']} / {qa_summary['automated_check_count']} automated controls; {current_metric_passes} / {len(metric_rows)} metric reconciliations; Python / SQL difference below USD 0.01."],
+        ],
+        [1.55, 5.45],
+        font_size=8.6,
+        aligns=["left", "left"],
+    )
+    add_rich_paragraph(
+        [("Main interpretation. ", True), ("The book is materially more exposed through long-term economic value than through first-year earnings under the default assumptions.", False)],
+        before=4,
+    )
+    add_rich_paragraph(
+        [("Main limitation. ", True), ("Behavioral deposit beta, maturity and runoff are modeled assumptions rather than empirically estimated bank parameters, and they materially affect both NII and EVE.", False)],
+    )
+    add_rich_paragraph(
+        [("Professional boundary. ", True), ("This is a synthetic portfolio study, not a production bank model or a regulatory compliance calculation.", False)],
+    )
+
+    # Page 3: Business problem, data and portfolio
+    new_page("Business Problem, Data and Portfolio Construction")
+    add_paragraph(
+        "Banks monitor repricing, NII, EVE and liquidity together because short-horizon earnings and "
+        "long-horizon value can move differently, while funding stress can constrain the actions "
+        "available to manage either exposure. This project links those views in one reproducible study.",
+        after=6,
+    )
+    add_table(
+        ["Area", "Portfolio design"],
+        [
+            ["Public calibration", f"Federal Reserve H.8, release {lineage['h8']['release_date']}; observation {lineage['h8']['observation_date']}; all US commercial banks, not seasonally adjusted."],
+            ["Market rates", f"US Treasury Daily Treasury Par Yield Curve Rates, observation {lineage['treasury']['observation_date']}."],
+            ["Portfolio size", f"USD {million(metrics['total_assets'], 0)}m of synthetic assets."],
+            ["Record count", f"{metrics['positions']} synthetic contract / group records generated with deterministic seed {metrics['seed']}."],
+            ["Products", "Loans, securities, deposits, borrowings and residual balance-sheet categories."],
+            ["Behavioral assumptions", "Deposit beta, NMD maturity, runoff, liquidity haircuts, funding nonrenewal and commitment draws."],
+        ],
+        [1.55, 5.45],
+        font_size=8.6,
+        aligns=["left", "left"],
+    )
+    document.add_heading("OBSERVED AND MODELED", level=2)
+    add_table(
+        ["Observed public evidence", "Modeled portfolio assumptions"],
+        [[
+            "Treasury par yields; H.8 cash, securities, gross loans, deposits, borrowings and residual balance-sheet shares.",
+            "Product splits, contractual dates, coupons, reset schedules, amortization, deposit behavior, runoff, haircuts and commitment draws.",
+        ]],
+        [3.5, 3.5],
+        font_size=8.5,
+        aligns=["left", "left"],
+    )
+    add_rich_paragraph(
+        [("Governance distinction. ", True), ("Public aggregates anchor the size and broad composition of the book; they do not reveal a bank-specific contractual portfolio. All position-level details remain synthetic and traceable to documented assumptions.", False)],
+        before=4,
+    )
+    document.add_heading("ANALYTICAL WORKFLOW", level=2)
+    add_workflow(
+        [
+            "Official Public Sources",
+            "Synthetic Banking Book",
+            "Contract-Level Cash-Flow Engine",
+            "NII | EVE | Liquidity Stress",
+            "SQL / DuckDB Controls",
+            "Excel Management Pack | Portfolio Report",
+        ]
+    )
+
+    # Page 4: Repricing gap
+    new_page("Repricing Gap and Balance-Sheet Structure")
+    add_paragraph(
+        "Rate-sensitive principal is assigned to the first contractual reset, or final maturity for "
+        "fixed-rate instruments. Non-maturity deposits reprice monthly and therefore concentrate in "
+        "the shortest bucket; non-rate-sensitive balances are excluded from RSA and RSL.",
+        after=3,
+    )
+    add_figure(
+        "repricing_gap.png",
+        "Figure 1. Rate-sensitive assets and liabilities by next repricing bucket.",
+        "Repricing gap chart comparing rate-sensitive assets and liabilities by tenor bucket",
+        width=6.55,
+    )
+    repricing_rows = [row for row in payload["repricing_gap"] if row["bucket"] != "Non-rate-sensitive"]
+    add_table(
+        ["Bucket", "RSA USD m", "RSL USD m", "Gap USD m"],
+        [[row["bucket"], million(row["rsa"], 2), million(row["rsl"], 2), signed_million(row["periodic_gap"], 2)] for row in repricing_rows],
+        [2.55, 1.45, 1.45, 1.55],
+        font_size=8.0,
+        aligns=["left", "right", "right", "right"],
+    )
+    add_bullet("The overnight-to-one-month gap is USD -46.42m: more funding than assets can reprice immediately.")
+    add_bullet("Assets beyond five years total approximately USD 42.15m with no rate-sensitive liabilities in that bucket, creating long-duration value exposure.")
+    add_bullet("Gap direction alone does not determine NII because deposit pass-through depends on the modeled NMD beta.")
+
+    # Page 5: NII
+    new_page("12-Month NII Sensitivity")
+    add_paragraph(
+        "The 12-month analysis follows the existing book as it runs off. Fixed coupons remain "
+        "unchanged until maturity; floating-rate assets reset on schedule; matured principal is not "
+        "reinvested. The result is an existing-book sensitivity, not a forecast for a growing balance sheet.",
+        after=3,
+    )
+    add_figure(
+        "nii_sensitivity.png",
+        "Figure 2. Twelve-month Delta NII under internal illustrative scenarios.",
+        "NII sensitivity chart showing twelve-month change in net interest income by rate scenario",
+        width=6.55,
+    )
+    add_table(
+        ["Scenario", "NII USD m", "Delta USD k", "Delta / Base"],
+        [[row["scenario"], million(row["nii"]), signed_thousand(row["delta_nii"]), percent(row["delta_nii_pct"], 2)] for row in payload["nii_scenarios"]],
+        [2.55, 1.35, 1.45, 1.65],
+        font_size=8.1,
+        aligns=["left", "right", "right", "right"],
+    )
+    add_rich_paragraph(
+        [("Key result. ", True), (f"{metrics['worst_nii_scenario']} produces the worst tested 12-month change at USD {signed_thousand(metrics['worst_delta_nii'])}k, small relative to EVE sensitivity.", False)],
+        before=3,
+        after=3,
+    )
+    add_rich_paragraph(
+        [("Why this matters. ", True), ("A small default earnings impact does not mean the book is hedged. NMD beta sensitivity can reverse the NII direction because modeled deposit pass-through changes the funding-cost response.", False)],
+        after=0,
+    )
+
+    # Page 6: EVE
+    new_page("EVE / IRRBB Sensitivity")
+    add_paragraph(
+        "EVE measures the discounted value of asset cash flows less liability cash flows over the full "
+        "modeled life. Floating coupons are reprojected under each stressed curve and NMD principal "
+        "follows its behavioral maturity schedule; equity is excluded as a liability.",
+        after=3,
+    )
+    add_figure(
+        "eve_sensitivity.png",
+        "Figure 3. Delta EVE under internal illustrative scenarios.",
+        "EVE sensitivity chart showing change in economic value by interest-rate scenario",
+        width=6.55,
+    )
+    add_table(
+        ["Scenario", "EVE USD m", "Delta USD m", "Delta / equity proxy"],
+        [[row["scenario"], million(row["eve"]), signed_million(row["delta_eve"]), percent(row["delta_eve_equity_proxy_pct"], 2)] for row in payload["eve_scenarios"]],
+        [2.5, 1.35, 1.45, 1.7],
+        font_size=8.1,
+        aligns=["left", "right", "right", "right"],
+    )
+    add_rich_paragraph(
+        [("Worst tested scenario. ", True), (f"{metrics['worst_eve_scenario']} reduces EVE by USD {signed_million(metrics['worst_delta_eve'])}m, equal to {percent(metrics['worst_delta_eve_equity_proxy_pct'], 2)} of the stylized equity residual proxy.", False)],
+        before=3,
+        after=3,
+    )
+    add_rich_paragraph(
+        [("Interpretation. ", True), ("Long-lived fixed-rate asset cash flows remain exposed to higher discount rates even when first-year coupon income changes only modestly.", False)],
+        after=3,
+    )
+    add_rich_paragraph(
+        [("Boundary. ", True), ("The equity residual proxy is not regulatory capital, and this result is not a BCBS supervisory outlier test or a production IRRBB regulatory calculation.", False)],
+        after=0,
+    )
+
+    # Page 7: Liquidity
+    new_page("90-Day Liquidity Stress Testing")
+    add_paragraph(
+        "A daily ledger starts with cash and recognizes stress outflows, contractual inflows and timed "
+        "government-security monetization. Securities can be monetized once after haircuts; later "
+        "cash flows are excluded to prevent double counting.",
+        after=3,
+    )
+    add_figure(
+        "liquidity_survival.png",
+        "Figure 4. Available cash through the 90-day stress horizon.",
+        "Liquidity survival chart showing available cash by day for three stress scenarios",
+        width=6.55,
+    )
+    add_table(
+        ["Scenario", "Outflows USD m", "Recognized inflows USD m", "End buffer USD m", "Survival"],
+        [[
+            row["scenario"],
+            million(row["total_outflow"], 2),
+            million(row["recognized_inflow"], 2),
+            million(row["remaining_liquidity_buffer"], 3),
+            "≥90 days" if row["survival_censored"] else f"{row['survival_days']} days",
+        ] for row in payload["liquidity_scenarios"]],
+        [1.35, 1.35, 1.55, 1.45, 1.3],
+        font_size=7.9,
+        aligns=["left", "right", "right", "right", "center"],
+    )
+    add_rich_paragraph(
+        [("Key result. ", True), (f"All three scenarios survive at least 90 days. Combined finishes with only USD {million(payload['liquidity_scenarios'][2]['remaining_liquidity_buffer'])}m of available cash, so the result is right-censored rather than evidence of indefinite survival.", False)],
+        before=3,
+        after=3,
+    )
+    add_rich_paragraph(
+        [("Stress mechanics. ", True), ("The scenarios combine retail runoff, commitment drawdown, term nonrenewal, wholesale funding loss, security haircuts, monetization timing and an internal daily 75% inflow cap.", False)],
+        after=3,
+    )
+    add_rich_paragraph(
+        [("Implementation takeaway. ", True), ("The implementation uses a daily liquidity stock-and-flow ledger rather than only static scenario totals.", False)],
+        after=0,
+    )
+
+    # Page 8: Validation
+    new_page("Validation and Control Framework")
+    add_paragraph(
+        "The validation design checks source integrity, calculation consistency, independent control "
+        "logic where feasible, saved Office artifacts and current-state metric reconciliation. This "
+        "separates generated outputs from evidence that the outputs are internally consistent.",
+        after=5,
+    )
+    add_kpi_grid(
+        [
+            (f"{qa_summary['pytest']['tests']} / {qa_summary['pytest']['tests']}", "pytest"),
+            (f"{qa_summary['automated_check_count']} / {qa_summary['automated_check_count']}", "Automated Acceptance Controls"),
+            (f"{metrics['core_checks_passed']} / {metrics['core_checks_passed']}", "Core Engine / Data Controls"),
+            (f"{current_metric_passes} / {len(metric_rows)}", "Current Metric Reconciliations"),
+            (f"USD {metrics['python_sql_max_difference']:.10f}", "Maximum Python / SQL Difference"),
+        ],
+        columns=3,
+        metric_size=12.5,
+        label_size=7.6,
+    )
+    document.add_heading("SQL CONTROL STRUCTURE", level=2)
+    add_table(
+        ["Classification", "Controls", "Meaning"],
+        [
+            ["Independent recomputation", "Balance sheet; repricing gap", "SQL recomputes results from position-level inputs without Python result columns."],
+            ["Partial recomputation", "NII; EVE; liquidity", "SQL independently aggregates or reconstructs controls but reuses projected cash flows or discount inputs."],
+        ],
+        [1.65, 1.9, 3.45],
+        font_size=8.2,
+        aligns=["left", "left", "left"],
+    )
+    document.add_heading("ARTIFACT AND GOVERNANCE EVIDENCE", level=2)
+    add_table(
+        ["Artifact", "Evidence"],
+        [
+            ["Excel management pack", f"12 sheets; 15 native tables; 4 native charts; {formula_count} cached formulas; no external links or formula errors."],
+            ["Portfolio report", "Nine-page render; reconciled core metrics; source names; repository and QR; author identity; model-boundary language; no local paths or unfinished text."],
+            ["Source governance", "Versioned source lock, raw-to-processed lineage and fail-closed validation before analysis or artifact writes."],
+        ],
+        [1.65, 5.35],
+        font_size=8.3,
+        aligns=["left", "left"],
+    )
+    add_rich_paragraph(
+        [("Validation boundary. ", True), ("The controls establish implementation consistency under documented synthetic assumptions; they do not empirically validate deposit behavior or turn the SQL layer into a second independent valuation engine.", False)],
+        before=3,
+        after=0,
+    )
+
+    # Page 9: Skills, limitations and repository
+    new_page("Skills Demonstrated and Responsible Interpretation")
+    document.add_heading("SKILLS DEMONSTRATED", level=2)
+    add_table(
+        ["Capability", "Evidence demonstrated in this project"],
+        [
+            ["Risk analytics", "NII sensitivity; EVE / IRRBB analysis; repricing gap; 90-day liquidity stress; NMD behavioral sensitivity."],
+            ["Programming and data", "Python cash-flow modelling; SQL / DuckDB reconciliation; reproducible pipeline; structured controls; source lineage and fail-closed validation."],
+            ["Risk communication & reporting", "Excel management pack; risk visualization; executive interpretation; concise model-boundary documentation."],
+        ],
+        [1.75, 5.25],
+        font_size=8.6,
+        aligns=["left", "left"],
+    )
+    document.add_heading("KEY LIMITATIONS", level=2)
+    for limitation in (
+        "The banking book is synthetic and calibrated to public industry aggregates rather than bank-level records.",
+        "Deposit beta, behavioral maturity and runoff are modeled assumptions, not empirically estimated parameters.",
+        "Mortgage prepayment, embedded options and dynamic customer migration are not modeled.",
+        "Derivative hedges, hedge costs and optimization are outside scope.",
+        "Liquidity results are internal scenario proxies; no formal LCR or NSFR is calculated.",
+        "The study is not a BCBS standardized IRRBB implementation or a regulatory capital assessment.",
+    ):
+        add_bullet(limitation)
+    document.add_heading("REPOSITORY AND SUPPORTING EVIDENCE", level=2)
+    add_paragraph(
+        "Full methodology, source lineage, validation evidence, reviewed outputs and reproducible code are available in the public repository.",
+        after=3,
+    )
+    repository_paragraph = document.add_paragraph()
+    repository_paragraph.paragraph_format.space_after = Pt(4)
+    _add_hyperlink(repository_paragraph, REPOSITORY_URL, REPOSITORY_URL)
+    add_paragraph(
+        "This report is designed as a standalone recruitment attachment; the repository provides the deeper technical and audit trail for interview discussion.",
+        after=0,
+    )
+
+    document.save(OUTPUT)
     print(OUTPUT)
 
 
-if __name__=='__main__':build()
+if __name__ == "__main__":
+    build()

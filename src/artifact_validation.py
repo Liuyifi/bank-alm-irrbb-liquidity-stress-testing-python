@@ -75,8 +75,8 @@ def acceptance(require_render=False):
     if require_render:
         ensure_word_render()
     m=json.loads((ROOT/'outputs/metrics/key_metrics.json').read_text())
-    lineage=json.loads((ROOT/'data/processed/public_data_lineage.json').read_text())
     book=saved_workbook();text=doc_text()
+    properties=Document(DOC).core_properties
     required={'Executive Summary','Balance Sheet','Repricing Gap','NII Scenarios','EVE Scenarios','Liquidity Stress','Assumptions','Data Quality'}
     checks=[check_record('word_docx_openable',DOC.stat().st_size>10000 and bool(text)),
             check_record('excel_xlsx_openable',len(book['sheets'])==12),
@@ -88,11 +88,17 @@ def acceptance(require_render=False):
             check_record('word_no_unfinished_text',not re.search(r'\b(TODO|TBC|placeholder)\b',text,re.I)),
             check_record('word_no_absolute_local_paths',not re.search(r'/Users/|[A-Za-z]:\\\\',text)),
             check_record('word_no_legacy_equity_proxy_label',not re.search(r'Tier\s*1\s*proxy|EVE\s*/\s*Tier',text,re.I)),
-            check_record('word_public_source_hashes',all(r['sha256'] in text for r in lineage['files'])),
+            check_record('word_portfolio_identity',all(value in text for value in ('YIFEI LIU\'S PORTFOLIO CASE STUDY','Yifei Liu','Target roles','Core stack','Risk focus'))),
+            check_record('word_recruitment_polish',all(value in text for value in ('Python | SQL | DuckDB | Excel','ALM | IRRBB | Liquidity Stress Testing','Portfolio evidence','ANALYTICAL WORKFLOW','Official Public Sources','Risk communication & reporting','≥90 Days','≥90 days')) and not re.search(r'Recruiter view|Recruiter takeaway',text,re.I)),
+            check_record('word_repository_visible','https://github.com/Liuyifi/bank-alm-irrbb-liquidity-stress-testing-python' in text),
+            check_record('word_public_source_context',all(value in text for value in ('Federal Reserve H.8','US Treasury'))),
+            check_record('word_model_boundaries',all(value in text for value in ('synthetic portfolio study','not regulatory capital','not a BCBS supervisory outlier test','no formal LCR or NSFR'))),
+            check_record('word_core_properties_author',properties.author=='Yifei Liu' and properties.last_modified_by=='Yifei Liu' and properties.title=='Bank ALM / IRRBB & Liquidity Stress Testing'),
+            check_record('word_no_ai_branding',not re.search(r'ChatGPT|Codex|OpenAI',text,re.I)),
             check_record('readme_paths_valid',not readme_paths(),readme_paths())]
     if require_render:
         pages=PdfReader(PDF).pages
-        checks.extend([check_record('word_nine_pages',len(pages)==9,len(pages)),
+        checks.extend([check_record('word_page_count_exact',len(pages)==9,len(pages)),
                        check_record('word_no_blank_pages',all(len(p.extract_text())>600 for p in pages))])
     expected={'D7':m['total_assets']/1e6,'D8':m['positions'],'D9':m['base_nii']/1e6,
               'D10':m['worst_delta_nii']/1e6,'D11':m['base_eve']/1e6,
@@ -100,17 +106,20 @@ def acceptance(require_render=False):
               'D14':90,'D15':m['liquidity_scenarios'][2]['remaining_liquidity_buffer']/1e6,'D16':0}
     error=max(abs(book['sheets']['Executive Summary'][c]-v) for c,v in expected.items())
     checks.append(check_record('excel_core_metrics_vs_python',error<1e-9,f"Max scaled difference {error:.12f}"))
-    values=[f"{m['base_nii']/1e6:.3f}",f"{m['base_eve']/1e6:.3f}",f"{m['worst_delta_eve']/1e6:+.3f}",f"{m['worst_delta_nii']/1e6:+.3f}",f"{m['worst_delta_eve_equity_proxy_pct']*100:.1f}%",f"{m['liquidity_scenarios'][2]['remaining_liquidity_buffer']/1e6:.3f}"]
+    values=[f"{m['base_nii']/1e6:.3f}",f"{m['base_eve']/1e6:.3f}",f"{m['worst_delta_eve']/1e6:+.3f}",f"{m['worst_delta_nii']/1e3:+.1f}",f"{m['worst_delta_eve_equity_proxy_pct']*100:.2f}%",f"{m['liquidity_scenarios'][2]['remaining_liquidity_buffer']/1e6:.3f}"]
     checks.append(check_record('word_core_metrics_vs_python',all(v in text for v in values)))
     if require_render:
         images=sorted((ROOT/'qa/render').glob('page-*.png'))
-        checks.append(check_record('word_page_pngs_present',len(images)==9 and all(Image.open(p).width>=1400 for p in images)))
+        checks.append(check_record('word_page_pngs_present',len(images)==len(pages)==9 and all(Image.open(p).width>=1400 for p in images)))
     with ZipFile(DOC) as z:
         xml=ET.fromstring(z.read('word/styles.xml'))
         ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
         borders=xml.findall('.//w:pBdr',ns)
+        document_xml=z.read('word/document.xml').decode('utf-8')
+        media=[n for n in z.namelist() if n.startswith('word/media/')]
         checks.append(check_record('word_title_rule_removed',not borders))
-        checks.append(check_record('word_embedded_charts_present',len([n for n in z.namelist() if n.startswith('word/media/')])==4))
+        checks.append(check_record('word_embedded_visuals_present',len(media)>=5,f"{len(media)} media files"))
+        checks.append(check_record('word_qr_embedded','QR code linking to the public GitHub repository' in document_xml))
     probe=json.loads((ROOT/'qa/workbook_build.json').read_text())
     checks.append(check_record('excel_recalculation_probe',probe['formula_recalculation_probe']=='PASS'))
     workbook_text='\n'.join(str(v) for cells in book['sheets'].values() for v in cells.values() if v is not None)
