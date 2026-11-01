@@ -226,6 +226,9 @@ def build():
     )
     properties.author = "Yifei Liu"
     properties.last_modified_by = "Yifei Liu"
+    properties.comments = ""
+    properties.keywords = ""
+    properties.category = ""
     properties.created = datetime(2026, 11, 1, tzinfo=timezone.utc)
     properties.modified = datetime(2026, 11, 1, tzinfo=timezone.utc)
 

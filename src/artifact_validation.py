@@ -77,6 +77,7 @@ def acceptance(require_render=False):
     m=json.loads((ROOT/'outputs/metrics/key_metrics.json').read_text())
     book=saved_workbook();text=doc_text()
     properties=Document(DOC).core_properties
+    expected_subject='Recruitment Portfolio Case Study in Treasury Risk, ALM, IRRBB and Liquidity Stress Testing'
     required={'Executive Summary','Balance Sheet','Repricing Gap','NII Scenarios','EVE Scenarios','Liquidity Stress','Assumptions','Data Quality'}
     checks=[check_record('word_docx_openable',DOC.stat().st_size>10000 and bool(text)),
             check_record('excel_xlsx_openable',len(book['sheets'])==12),
@@ -94,6 +95,7 @@ def acceptance(require_render=False):
             check_record('word_public_source_context',all(value in text for value in ('Federal Reserve H.8','US Treasury'))),
             check_record('word_model_boundaries',all(value in text for value in ('synthetic portfolio study','not regulatory capital','not a BCBS supervisory outlier test','no formal LCR or NSFR'))),
             check_record('word_core_properties_author',properties.author=='Yifei Liu' and properties.last_modified_by=='Yifei Liu' and properties.title=='Bank ALM / IRRBB & Liquidity Stress Testing'),
+            check_record('word_core_properties_clean',properties.subject==expected_subject and not properties.comments and not properties.keywords and not properties.category),
             check_record('word_no_ai_branding',not re.search(r'ChatGPT|Codex|OpenAI',text,re.I)),
             check_record('readme_paths_valid',not readme_paths(),readme_paths())]
     if require_render:
@@ -112,6 +114,10 @@ def acceptance(require_render=False):
         images=sorted((ROOT/'qa/render').glob('page-*.png'))
         checks.append(check_record('word_page_pngs_present',len(images)==len(pages)==9 and all(Image.open(p).width>=1400 for p in images)))
     with ZipFile(DOC) as z:
+        package_names=z.namelist()
+        banned_terms=(b'codex',b'openai',b'chatgpt',b'python-docx')
+        package_hits={term.decode():[name for name in package_names if term in z.read(name).lower()] for term in banned_terms}
+        review_parts=[name for name in package_names if re.search(r'(?:^|/)(?:comments[^/]*|people|persons)\.xml$',name,re.I)]
         xml=ET.fromstring(z.read('word/styles.xml'))
         ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}
         borders=xml.findall('.//w:pBdr',ns)
@@ -120,6 +126,9 @@ def acceptance(require_render=False):
         checks.append(check_record('word_title_rule_removed',not borders))
         checks.append(check_record('word_embedded_visuals_present',len(media)>=5,f"{len(media)} media files"))
         checks.append(check_record('word_qr_embedded','QR code linking to the public GitHub repository' in document_xml))
+        checks.append(check_record('word_package_no_generation_branding',not any(package_hits.values()),package_hits))
+        checks.append(check_record('word_no_custom_properties','docProps/custom.xml' not in package_names))
+        checks.append(check_record('word_no_comment_reviewer_metadata',not review_parts and '<w:comment' not in document_xml,review_parts))
     probe=json.loads((ROOT/'qa/workbook_build.json').read_text())
     checks.append(check_record('excel_recalculation_probe',probe['formula_recalculation_probe']=='PASS'))
     workbook_text='\n'.join(str(v) for cells in book['sheets'].values() for v in cells.values() if v is not None)
