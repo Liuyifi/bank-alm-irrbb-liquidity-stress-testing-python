@@ -1,6 +1,6 @@
 # Bank ALM / IRRBB & Liquidity Stress Testing
 
-Portfolio-grade asset-liability management analysis of a **USD 100 million synthetic banking book**, combining Python cash-flow modelling, DuckDB reconciliations, an Excel management pack and a nine-page management report.
+Portfolio-grade asset-liability management analysis of a **USD 100 million synthetic banking book**, combining Python cash-flow modelling, DuckDB reconciliations, an Excel management pack and a nine-page recruitment portfolio case study.
 
 | Portfolio result | Base / worst case |
 | --- | ---: |
@@ -25,7 +25,7 @@ Portfolio-grade asset-liability management analysis of a **USD 100 million synth
 - Contract-level cash-flow projection for fixed, floating and amortizing positions, with scenario NII and full-life EVE valuation.
 - A daily liquidity ledger with runoff, commitment draws, funding nonrenewal, haircuts, asset monetization and an internal inflow cap.
 - Four executed DuckDB control queries covering balance sheet, repricing, scenario aggregation and liquidity reconstruction.
-- A recruiter-ready delivery layer: [PDF management report](report/Banking_Book_Interest_Rate_and_Liquidity_Stress_Testing_Report.pdf), [Word report](report/Banking_Book_Interest_Rate_and_Liquidity_Stress_Testing_Report.docx) and [Excel management pack](outputs/Bank_Treasury_Risk_Management_Pack.xlsx).
+- A recruiter-ready delivery layer: [PDF portfolio report](report/Banking_Book_Interest_Rate_and_Liquidity_Stress_Testing_Report.pdf), [Word portfolio report](report/Banking_Book_Interest_Rate_and_Liquidity_Stress_Testing_Report.docx) and [Excel management pack](outputs/Bank_Treasury_Risk_Management_Pack.xlsx).
 
 ## Selected findings
 
@@ -68,7 +68,7 @@ data/raw/           frozen official source observations
 data/processed/     compact reproducibility inputs and position ledger
 docs/               methodology and validation notes
 outputs/             reviewed tables, figures, metrics and Excel pack
-report/              PDF and Word management reports
+report/              PDF and Word portfolio case study
 sql/                 executed reconciliation queries
 src/                 analytics, controls and artifact builders
 tests/               engine, artifact, regression and source-boundary tests
